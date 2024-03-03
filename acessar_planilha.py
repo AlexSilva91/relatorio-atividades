@@ -1,5 +1,5 @@
 import pandas as pd
-from collections import Counter
+from collections import Counter, OrderedDict
 from textwrap import wrap
 
 def processar_dados_planilha(caminho_aquivo):
@@ -41,12 +41,16 @@ def processar_dados_planilha(caminho_aquivo):
             # Armazenando a contagem da atividade para o técnico
             tecnicos_atividades[tecnico][atividade] = contagem
 
+    # Ordena o dicionário por chaves (nomes dos técnicos)
+    tecnicos_atividades = OrderedDict(sorted(tecnicos_atividades.items()))
+
     # Salvando a saída em um arquivo TXT
     with open("resultado1.txt", "w") as arquivo:
 
         # Imprima o título do relatório
-        arquivo.write("Relatório de Atividades por Técnico\n")
         arquivo.write("-------------------------------------------------\n")
+        arquivo.write("-----> Relatório de Atividades por Técnico <-----\n")
+        arquivo.write("-------------------------------------------------")
 
         # Percorra os técnicos e suas atividades
         for tecnico, atividades in tecnicos_atividades.items():
@@ -56,11 +60,21 @@ def processar_dados_planilha(caminho_aquivo):
             # Totalizador por técnico
             total_por_tecnico = 0
 
+            # Ordena as atividades por chaves (nome da atividade)
+            atividades = OrderedDict(sorted(atividades.items()))
+
             for atividade, contagem in atividades.items():
                 texto_formatado = wrap(f"  {atividade}: {contagem}\n", width=70)
                 arquivo.write("\n".join(texto_formatado) + "\n")
 
                 total_por_tecnico += contagem
 
-            arquivo.write(f"\nTotal: {total_por_tecnico}\n")
-            arquivo.write("-------------------------------------------------\n")
+            # Converte a contagem para string
+            contagem_str = f"{total_por_tecnico}"
+            # Ordena as linhas por contagem (decrescente)
+            linhas = sorted([f"\n-----> Total: {contagem_str} <-----", f"\n"], reverse=True)
+
+            # Escreve as linhas ordenadas no arquivo
+            arquivo.write("\n".join(linhas) + "\n")
+            arquivo.write("-------------------------------------------------")
+

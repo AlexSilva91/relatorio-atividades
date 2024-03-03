@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QVBoxLayout, QPushButton, QLabel
 from PyQt5.QtWidgets import QWidget
-#from acessar_planilha import processar_dados_planilha
-from teste_planilha import processar_dados_planilha
+from acessar_planilha import processar_dados_planilha
 
 global caminho_arquivo
 
