@@ -2,79 +2,75 @@ import pandas as pd
 from collections import Counter, OrderedDict
 from textwrap import wrap
 
-def processar_dados_planilha(caminho_aquivo):
-    nome_arquivo = caminho_aquivo
-    planilha = "Ordens de Serviço"
-
-    # Lendo a planilha
-    df = pd.read_excel(nome_arquivo, sheet_name=planilha)
+def ler_planilha(caminho_arquivo, planilha_nome):
+    df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
     df = df.drop(df.index[:7])
+    return df
 
-    # Extraindo as colunas de interesse
+def extrair_colunas_interesse(df):
     tecnico = df.iloc[:, 15]
     atividade = df.iloc[:, 8]
+    return tecnico, atividade
 
-    # Criando uma lista de tuplas (técnico, atividade)
-    lista = list(zip(tecnico, atividade))
+def criar_lista_tuplas(tecnico, atividade):
+    return list(zip(tecnico, atividade))
 
-    # Lista de técnicos a evitar
-    lista_de_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves"]
+def contar_atividades_repetidas(lista):
+    return Counter(lista)
 
-    # Criando um dicionário para armazenar os resultados
+def processar_tecnicos_atividades(contagem_atividades, tecnicos_a_evitar):
     tecnicos_atividades = {}
 
-    # Criando um objeto Counter para contar as repetições em "lista"
-    contagem_atividades = Counter(lista)
-
-    # Percorrendo as contagens de atividades
     for (tecnico, atividade), contagem in contagem_atividades.items():
-        # Ignora valores que não são nomes de técnicos
         if not isinstance(tecnico, str) or tecnico.strip() == "":
             continue
 
-        # Ignora técnicos na lista "lista_de_tecnicos_a_evitar"
-        if tecnico not in lista_de_tecnicos_a_evitar:
-            # Adicionando o técnico ao dicionário se não existir
+        if tecnico not in tecnicos_a_evitar:
             if tecnico not in tecnicos_atividades:
                 tecnicos_atividades[tecnico] = {}
 
-            # Armazenando a contagem da atividade para o técnico
             tecnicos_atividades[tecnico][atividade] = contagem
 
-    # Ordena o dicionário por chaves (nomes dos técnicos)
-    tecnicos_atividades = OrderedDict(sorted(tecnicos_atividades.items()))
+    return OrderedDict(sorted(tecnicos_atividades.items()))
 
-    # Salvando a saída em um arquivo TXT
-    with open("resultado1.txt", "w") as arquivo:
-
-        # Imprima o título do relatório
+def salvar_resultado_em_arquivo(tecnicos_atividades, total):
+    with open("resultado2.txt", "w") as arquivo:
         arquivo.write("-------------------------------------------------\n")
         arquivo.write("-----> Relatório de Atividades por Técnico <-----\n")
         arquivo.write("-------------------------------------------------")
 
-        # Percorra os técnicos e suas atividades
         for tecnico, atividades in tecnicos_atividades.items():
-            arquivo.write(f"\nTécnico: {tecnico}\n")
-            arquivo.write("------------------------\n")
+            arquivo.write(f"\n********************************\nTécnico: {tecnico}\n********************************\n")
 
-            # Totalizador por técnico
             total_por_tecnico = 0
-
-            # Ordena as atividades por chaves (nome da atividade)
             atividades = OrderedDict(sorted(atividades.items()))
 
             for atividade, contagem in atividades.items():
-                texto_formatado = wrap(f"  {atividade}: {contagem}\n", width=70)
+                texto_formatado = wrap(f"  {atividade}: {contagem}\n", width=70)
                 arquivo.write("\n".join(texto_formatado) + "\n")
 
                 total_por_tecnico += contagem
+                total[0] += contagem
 
-            # Converte a contagem para string
             contagem_str = f"{total_por_tecnico}"
-            # Ordena as linhas por contagem (decrescente)
-            linhas = sorted([f"\n-----> Total: {contagem_str} <-----", f"\n"], reverse=True)
+            linhas = sorted([f"\n-----> Total: {contagem_str} <-----"], reverse=True)
 
-            # Escreve as linhas ordenadas no arquivo
             arquivo.write("\n".join(linhas) + "\n")
-            arquivo.write("-------------------------------------------------")
 
+        arquivo.write(f"++++++++++++++++++++++++++++++++\n Total geral de atividade: {total[0]}\n++++++++++++++++++++++++++++++++\n")
+        arquivo.write("-------------------------------------------------")
+
+def processar_dados_planilha(caminho):
+  # Uso das funções
+  caminho_arquivo = caminho
+  planilha_nome = "Ordens de Serviço"
+  lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves"]
+
+  df = ler_planilha(caminho_arquivo, planilha_nome)
+  tecnico, atividade = extrair_colunas_interesse(df)
+  lista_tuplas = criar_lista_tuplas(tecnico, atividade)
+  contagem_atividades = contar_atividades_repetidas(lista_tuplas)
+  total = [0]  # Usando uma lista para contornar a limitação do escopo
+
+  tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
+  salvar_resultado_em_arquivo(tecnicos_atividades, total)

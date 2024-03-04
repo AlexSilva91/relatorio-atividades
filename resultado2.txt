@@ -1,0 +1,126 @@
+-------------------------------------------------
+-----> Relatório de Atividades por Técnico <-----
+-------------------------------------------------
+********************************
+Técnico: adriano.teodoro
+********************************
+  ATIVAÇÃO: 9
+  CANCELAMENTO: 11
+  Mudança Endereço: 1
+  OURINETV: 2
+  REATIVAÇÃO: 1
+  RETIRADA: 19
+  SUPORTE EXTERNO: 50
+  SUPORTE INTERNO: 1
+  TRANSFERÊNCIA: 5
+  UPGRADE: 1
+
+-----> Total: 100 <-----
+
+********************************
+Técnico: gracione.cavalcanti
+********************************
+  ATIVAÇÃO: 14
+  CANCELAMENTO: 8
+  FINANCEIRO: 2
+  INFRAESTRUTURA: 1
+  REATIVAÇÃO: 2
+  RETIRADA: 5
+  SUPORTE EXTERNO: 53
+  SUPORTE INTERNO: 1
+  TRANSFERÊNCIA: 7
+  UPGRADE: 1
+
+-----> Total: 94 <-----
+
+********************************
+Técnico: jackson.mendes
+********************************
+  ATIVAÇÃO: 4
+  CANCELAMENTO: 1
+  INFRAESTRUTURA: 1
+  RETIRADA: 8
+  SUPORTE EXTERNO: 52
+  SUPORTE INTERNO: 2
+  TRANSFERÊNCIA: 4
+
+-----> Total: 72 <-----
+
+********************************
+Técnico: joao.neto
+********************************
+  ATIVAÇÃO: 4
+  Financeiro: 2
+  INFRAESTRUTURA: 4
+  RETIRADA: 8
+  SUPORTE EXTERNO: 53
+  SUPORTE INTERNO: 3
+  TRANSFERÊNCIA: 1
+  UPGRADE: 1
+
+-----> Total: 76 <-----
+
+********************************
+Técnico: joel.pedro
+********************************
+  ATIVAÇÃO: 17
+  CANCELAMENTO: 5
+  Corretiva: 1
+  FINANCEIRO: 1
+  MIGRAÇÃO: 1
+  Mudança Endereço: 1
+  OURINETV: 1
+  RETIRADA: 8
+  SUPORTE EXTERNO: 57
+  TRANSFERÊNCIA: 7
+  UPGRADE: 5
+
+-----> Total: 104 <-----
+
+********************************
+Técnico: jose.welder
+********************************
+  ATIVAÇÃO: 8
+  CANCELAMENTO: 4
+  FINANCEIRO: 1
+  OURINETV: 1
+  REATIVAÇÃO: 1
+  RETIRADA: 7
+  SUPORTE EXTERNO: 55
+  TRANSFERÊNCIA: 9
+  UPGRADE: 3
+
+-----> Total: 89 <-----
+
+********************************
+Técnico: luiz.carlos
+********************************
+  ATIVAÇÃO: 10
+  CANCELAMENTO: 8
+  REATIVAÇÃO: 1
+  RETIRADA: 14
+  SUPORTE EXTERNO: 26
+  TRANSFERÊNCIA: 6
+  UPGRADE: 4
+
+-----> Total: 69 <-----
+
+********************************
+Técnico: rogerio.sobreira
+********************************
+  ATIVAÇÃO: 8
+  CANCELAMENTO: 15
+  FINANCEIRO: 1
+  Mudança Endereço: 1
+  OURINETV: 1
+  RETIRADA: 9
+  SUPORTE EXTERNO: 41
+  SUPORTE INTERNO: 1
+  TRANSFERÊNCIA: 6
+  UPGRADE: 4
+
+-----> Total: 87 <-----
+++++++++++++++++++++++++++++++++
+ Total geral de atividade: 691
+++++++++++++++++++++++++++++++++
+-------------------------------------------------
