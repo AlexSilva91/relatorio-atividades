@@ -34,7 +34,7 @@ def processar_tecnicos_atividades(contagem_atividades, tecnicos_a_evitar):
     return OrderedDict(sorted(tecnicos_atividades.items()))
 
 def salvar_resultado_em_arquivo(tecnicos_atividades, total):
-    with open("resultado2.txt", "w") as arquivo:
+    with open("resultado.txt", "w") as arquivo:
         arquivo.write("-------------------------------------------------\n")
         arquivo.write("-----> Relatório de Atividades por Técnico <-----\n")
         arquivo.write("-------------------------------------------------")
@@ -74,3 +74,6 @@ def processar_dados_planilha(caminho):
 
   tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
   salvar_resultado_em_arquivo(tecnicos_atividades, total)
+
+processar_dados_planilha("/home/alex/Downloads/ordemservico-2024-03-04-194647.xlsx")
+
