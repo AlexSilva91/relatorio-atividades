@@ -1,6 +1,7 @@
 import pandas as pd
 from collections import Counter, OrderedDict
 from textwrap import wrap
+from auxiliar_por_atividade import get_resultado_formatado
 
 def ler_planilha(caminho_arquivo, planilha_nome):
     df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
@@ -33,8 +34,8 @@ def processar_tecnicos_atividades(contagem_atividades, tecnicos_a_evitar):
 
     return OrderedDict(sorted(tecnicos_atividades.items()))
 
-def salvar_resultado_em_arquivo(tecnicos_atividades, total):
-    with open("resultado.txt", "w") as arquivo:
+def salvar_resultado_em_arquivo(tecnicos_atividades, total, resultado_formatado):
+    with open("resultado4.txt", "w") as arquivo:
         arquivo.write("-------------------------------------------------\n")
         arquivo.write("-----> Relatório de Atividades por Técnico <-----\n")
         arquivo.write("-------------------------------------------------")
@@ -57,8 +58,11 @@ def salvar_resultado_em_arquivo(tecnicos_atividades, total):
 
             arquivo.write("\n".join(linhas) + "\n")
 
-        arquivo.write(f"++++++++++++++++++++++++++++++++\n Total geral de atividade: {total[0]}\n++++++++++++++++++++++++++++++++\n")
-        arquivo.write("-------------------------------------------------")
+        arquivo.write(f"\n++++++++++++++++++++++++++++++++\n Total geral de atividade: {total[0]}\n++++++++++++++++++++++++++++++++\n")
+        arquivo.write("\n-------------------------------------------------\n")
+        arquivo.write(" ---> Relatório de Atividades por Auxiliar <----\n")
+        arquivo.write("-------------------------------------------------\n")
+        arquivo.write('\n'+resultado_formatado)
 
 def processar_dados_planilha(caminho):
   # Uso das funções
@@ -73,7 +77,7 @@ def processar_dados_planilha(caminho):
   total = [0]  # Usando uma lista para contornar a limitação do escopo
 
   tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
-  salvar_resultado_em_arquivo(tecnicos_atividades, total)
+  salvar_resultado_em_arquivo(tecnicos_atividades, total, get_resultado_formatado(caminho))
 
 processar_dados_planilha("/home/alex/Downloads/ordemservico-2024-03-04-194647.xlsx")
 

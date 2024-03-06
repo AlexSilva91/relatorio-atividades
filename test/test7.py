@@ -1,6 +1,5 @@
 import pandas as pd
-from collections import Counter, defaultdict
-from textwrap import wrap
+from collections import defaultdict, Counter
 
 def ler_planilha(caminho_arquivo, planilha_nome):
     df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
@@ -17,6 +16,7 @@ def criar_lista_tuplas(tecnico, auxiliar, atividade):
     return list(zip(tecnico, auxiliar, atividade))
 
 def contar_atividades_por_auxiliar(lista_tuplas, tecnicos_a_evitar, auxiliares_a_evitar):
+    vinculo_tecnico_auxiliares = defaultdict(set)
     contagem_por_auxiliar = defaultdict(Counter)
 
     for tecnico, auxiliar, atividade in lista_tuplas:
@@ -27,24 +27,27 @@ def contar_atividades_por_auxiliar(lista_tuplas, tecnicos_a_evitar, auxiliares_a
             continue
 
         if pd.notna(auxiliar):  # Verifica se o valor não é NaN
-            contagem_por_auxiliar[(tecnico, auxiliar)][atividade] += 1
+            vinculo_tecnico_auxiliares[tecnico].add(auxiliar)
+            
+            # Verifica se o auxiliar é igual ao técnico principal
+            if auxiliar == tecnico:
+                # Se sim, incrementa a contagem do serviço para o próprio técnico principal
+                contagem_por_auxiliar[(tecnico, tecnico)][atividade] += 1
+            else:
+                # Se não, incrementa a contagem para o auxiliar
+                contagem_por_auxiliar[(tecnico, auxiliar)][atividade] += 1
 
-    return contagem_por_auxiliar
+    return dict(vinculo_tecnico_auxiliares), dict(contagem_por_auxiliar)
 
-def processar_planilha(caminho, tecnicos_a_evitar, auxiliares_a_evitar):
-    caminho_arquivo = caminho
+def gerar_dicionario(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_evitar):
     planilha_nome = "Ordens de Serviço"
-
     df = ler_planilha(caminho_arquivo, planilha_nome)
     tecnico, auxiliar, atividade = extrair_colunas_interesse(df)
     list_tuplas = criar_lista_tuplas(tecnico, auxiliar, atividade)
+    
+    vinculo_tecnico_auxiliares, contagem_por_auxiliar = contar_atividades_por_auxiliar(list_tuplas, tecnicos_a_evitar, auxiliares_a_evitar)
 
-    contagem_por_auxiliar = contar_atividades_por_auxiliar(list_tuplas, tecnicos_a_evitar, auxiliares_a_evitar)
-
-    for (tecnico, auxiliar), contagem_por_categoria in contagem_por_auxiliar.items():
-        print(f"\nTécnico: {tecnico}, Auxiliar: {auxiliar}")
-        for categoria, quantidade in contagem_por_categoria.items():
-            print(f"  Categoria: {categoria}, Quantidade de Ajuda: {quantidade}")
+    return vinculo_tecnico_auxiliares, contagem_por_auxiliar
 
 # Lista de técnicos a evitar
 lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves"]
@@ -52,6 +55,12 @@ lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "
 # Lista de auxiliares a evitar
 lista_auxiliares_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves"]
 
-# Uso das funções
+# Caminho para o arquivo de entrada
 caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-03-04-194647.xlsx"
-processar_planilha(caminho_arquivo, lista_tecnicos_a_evitar, lista_auxiliares_a_evitar)
+
+# Uso da função para obter os dicionários
+vinculo_tecnico_auxiliares, contagem_por_auxiliar = gerar_dicionario(caminho_arquivo, lista_tecnicos_a_evitar, lista_auxiliares_a_evitar)
+
+# Exibindo os dicionários
+print("Vínculo Técnico-Auxiliares:", vinculo_tecnico_auxiliares)
+print("\nContagem por Auxiliar:", contagem_por_auxiliar)
