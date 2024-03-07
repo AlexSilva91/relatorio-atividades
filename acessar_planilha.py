@@ -79,5 +79,4 @@ def processar_dados_planilha(caminho):
   tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
   salvar_resultado_em_arquivo(tecnicos_atividades, total, get_resultado_formatado(caminho))
 
-processar_dados_planilha("/home/alex/Downloads/ordemservico-2024-03-04-194647.xlsx")
 
