@@ -45,7 +45,7 @@ def remover_repeticao_auxiliar(lista_auxiliar, lista_auxiliar_proibido):
     return total_atividades
 
 def salvar_resultado_em_arquivo(tecnicos_atividades, total, total_ajuda , resultado_formatado):
-    with open("resultado4.txt", "w") as arquivo:
+    with open("relatório_técnicos.txt", "w") as arquivo:
         arquivo.write("-------------------------------------------------\n")
         arquivo.write("-----> Relatório de Atividades por Técnico <-----\n")
         arquivo.write("-------------------------------------------------")
