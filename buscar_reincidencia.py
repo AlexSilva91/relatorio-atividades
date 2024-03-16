@@ -81,7 +81,7 @@ def gerar_relatorio(caminho):
         relatorio_corretiva = gerar_relatorio_corretiva(contrato_atividade_tecnico)
         
         # Salvar a saída em um arquivo de texto
-        with open("reincidência.txt", "w") as file:
+        with open("relatório_reincidência.txt", "w") as file:
             file.write(f"---------------------------------------------------\n-------->  Relatório Suporte Externo: {len(relatorio_suporte_externo)}  <--------\n---------------------------------------------------\n")
             for contrato, dados in relatorio_suporte_externo.items():
                 file.write(f'Contrato: {contrato}\n')
