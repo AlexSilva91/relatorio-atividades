@@ -51,8 +51,9 @@ def gerar_relatorio_corretiva(contrato_atividade_tecnico):
                 relatorio_corretiva.append({'contrato': contrato, 'atividade': atividades[i], 'tecnico': tecnico, 'data': datas[i]})
     return relatorio_corretiva
 
-def gerar_relatorio():
-    caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-03-07-230029.xlsx"
+def gerar_relatorio(caminho):
+    #caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-03-07-230029.xlsx"
+    caminho_arquivo = caminho
     planilha_nome = "Ordens de Serviço"
     tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves"]
     atividades_a_exibir = ["suporte externo", "corretiva"]
@@ -81,7 +82,7 @@ def gerar_relatorio():
         
         # Salvar a saída em um arquivo de texto
         with open("reincidência.txt", "w") as file:
-            file.write(f"-------------------------------\n Relatório Suporte Externo: {len(relatorio_suporte_externo)} \n-------------------------------\n")
+            file.write(f"---------------------------------------------------\n-------->  Relatório Suporte Externo: {len(relatorio_suporte_externo)}  <--------\n---------------------------------------------------\n")
             for contrato, dados in relatorio_suporte_externo.items():
                 file.write(f'Contrato: {contrato}\n')
                 file.write(f'Atividades: {dados["atividades"]}\n')
@@ -89,8 +90,9 @@ def gerar_relatorio():
                 file.write(f'Técnico: {dados["tecnico"]}\n')
                 file.write(f'Datas: {", ".join(map(str, dados["datas"]))}\n')
                 file.write('\n')
+            file.write("---------------------------------------------------")
             
-            file.write(f"\n-------------------------------\nRelatório Corretiva: {len(relatorio_corretiva)}\n-------------------------------\n")
+            file.write(f"\n--------------------------------\n---> Relatório Corretiva: {len(relatorio_corretiva)} <---\n--------------------------------\n")
             for dados in relatorio_corretiva:
                 file.write(f'Contrato: {dados["contrato"]}\n')
                 file.write(f'Atividade: {dados["atividade"]}\n')
@@ -98,4 +100,4 @@ def gerar_relatorio():
                 file.write(f'Data: {dados["data"]}\n')
                 file.write('\n')
 
-gerar_relatorio()
+
