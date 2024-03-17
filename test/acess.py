@@ -1,209 +1,119 @@
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-
-def salvar_relatorio_em_pdf(texto_completo, caminho_pdf):
-    # Configuração da página
-    largura, altura = letter
-    margem = 30
-    altura_linha = 12
-
-    pdf = canvas.Canvas(caminho_pdf, pagesize=letter)
-    pdf.setFont("Helvetica", 12)
-
-    # Quebra o texto por linhas
-    linhas = texto_completo.split('\n')
-
-    # Configurações de posição inicial
-    x, y = margem, altura - margem
-
-    for linha in linhas:
-        if y < margem + altura_linha:
-            pdf.showPage()  # Adiciona uma nova página se não houver espaço suficiente
-            y = altura - margem
-
-        pdf.drawString(x, y, linha)
-        y -= altura_linha  # Desce 12 unidades para a próxima linha
-
-    pdf.save()
-
-# Texto completo
-texto_completo = """
--------------------------------------------------
-Relatório de Atividades por Técnico 
--------------------------------------------------
-********************************
-Técnico: adriano.teodoro
-********************************
-  ATIVAÇÃO: 11
-  CANCELAMENTO: 13
-  Mudança Endereço: 1
-  OURINETV: 3
-  REATIVAÇÃO: 1
-  RETIRADA: 20
-  SUPORTE EXTERNO: 52
-  SUPORTE INTERNO: 2
-  TRANSFERÊNCIA: 7
-  UPGRADE: 1
-
------> Total: 111 <-----
-
-********************************
-Técnico: gracione.cavalcanti
-********************************
-  ATIVAÇÃO: 17
-  CANCELAMENTO: 8
-  Corretiva: 1
-  FINANCEIRO: 2
-  INFRAESTRUTURA: 1
-  MIGRAÇÃO: 1
-  REATIVAÇÃO: 2
-  RETIRADA: 5
-  SUPORTE EXTERNO: 63
-  SUPORTE INTERNO: 1
-  TRANSFERÊNCIA: 8
-  UPGRADE: 1
-
------> Total: 110 <-----
-
-********************************
-Técnico: jackson.mendes
-********************************
-  ATIVAÇÃO: 6
-  CANCELAMENTO: 1
-  INFRAESTRUTURA: 1
-  Mudança Endereço: 1
-  RETIRADA: 8
-  SUPORTE EXTERNO: 59
-  SUPORTE INTERNO: 2
-  TRANSFERÊNCIA: 5
-
------> Total: 83 <-----
-
-********************************
-Técnico: joao.neto
-********************************
-  ATIVAÇÃO: 5
-  Financeiro: 2
-  INFRAESTRUTURA: 4
-  Instalação de KIT: 1
-  RETIRADA: 8
-  SUPORTE EXTERNO: 57
-  SUPORTE INTERNO: 3
-  TRANSFERÊNCIA: 1
-  UPGRADE: 1
-
------> Total: 82 <-----
-
-********************************
-Técnico: joel.pedro
-********************************
-  ATIVAÇÃO: 20
-  CANCELAMENTO: 8
-  Corretiva: 1
-  FINANCEIRO: 1
-  MIGRAÇÃO: 1
-  Mudança Endereço: 1
-  OURINETV: 1
-  RETIRADA: 10
-  SUPORTE EXTERNO: 62
-  TRANSFERÊNCIA: 10
-  UPGRADE: 5
-
------> Total: 120 <-----
-
-********************************
-Técnico: jose.welder
-********************************
-  ATIVAÇÃO: 9
-  CANCELAMENTO: 4
-  FINANCEIRO: 1
-  OURINETV: 2
-  REATIVAÇÃO: 1
-  RETIRADA: 11
-  SUPORTE EXTERNO: 65
-  TRANSFERÊNCIA: 10
-  UPGRADE: 3
-
------> Total: 106 <-----
-
-********************************
-Técnico: luiz.carlos
-********************************
-  ATIVAÇÃO: 10
-  CANCELAMENTO: 8
-  OURINETV: 1
-  REATIVAÇÃO: 1
-  RETIRADA: 19
-  SUPORTE EXTERNO: 28
-  TRANSFERÊNCIA: 7
-  UPGRADE: 5
-
------> Total: 79 <-----
-
-********************************
-Técnico: rogerio.sobreira
-********************************
-  ATIVAÇÃO: 8
-  CANCELAMENTO: 15
-  FINANCEIRO: 1
-  Mudança Endereço: 1
-  OURINETV: 1
-  RETIRADA: 9
-  SUPORTE EXTERNO: 42
-  SUPORTE INTERNO: 1
-  TRANSFERÊNCIA: 6
-  UPGRADE: 4
-
------> Total: 88 <-----
-
-++++++++++++++++++++++++++++++++
- Total geral de atividade: 765
-++++++++++++++++++++++++++++++++
-
--------------------------------------------------
-Relatório de Atividades por Auxiliar 
--------------------------------------------------
-
-Técnico: joel.pedro
-  Auxiliar: gracione.cavalcanti
-    Serviço: Corretiva, Quantidade: 1
-    Serviço: TRANSFERÊNCIA, Quantidade: 1
-    Serviço: SUPORTE EXTERNO, Quantidade: 1
-    Serviço: ATIVAÇÃO, Quantidade: 1
-    Serviço: MIGRAÇÃO, Quantidade: 1
-
-Técnico: gracione.cavalcanti
-  Auxiliar: jackson.mendes
-    Serviço: ATIVAÇÃO, Quantidade: 1
-  Auxiliar: joel.pedro
-    Serviço: TRANSFERÊNCIA, Quantidade: 2
-    Serviço: ATIVAÇÃO, Quantidade: 1
-
-Técnico: jose.welder
-  Auxiliar: adriano.teodoro
-    Serviço: SUPORTE EXTERNO, Quantidade: 1
-
-Técnico: rogerio.sobreira
-  Auxiliar: adriano.teodoro
-    Serviço: SUPORTE INTERNO, Quantidade: 1
-    Serviço: SUPORTE EXTERNO, Quantidade: 1
-
-Técnico: joao.neto
-  Auxiliar: jose.welder
-    Serviço: TRANSFERÊNCIA, Quantidade: 1
-
-Técnico: adriano.teodoro
-  Auxiliar: jackson.mendes
-    Serviço: Mudança Endereço, Quantidade: 1
+import pandas as pd
+from datetime import datetime
 
 
-+++++++++++++++++++++++++++++++
-Total geral de ajudas: 14
-+++++++++++++++++++++++++++++++
-"""
+def ler_planhilha(caminho_arquivo, planilha_nome):
+  try:
+    df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
+    df = df.drop(df.index[:7])
+    return df
+  except FileNotFoundError:
+    print("O arquivo especificado não pôde ser encontrado.")
+    return None
+    
+def extrair_colunas_interesse(df):
+  contrato = df.iloc[:, 2]
+  atividade = df.iloc[:, 8].str.lower()
+  data = pd.to_datetime(df.iloc[:, 14], errors='coerce')
+  tecnico = df.iloc[:, 15]
+  return tecnico, contrato, atividade, data
 
-# Caminho do arquivo PDF
-caminho_pdf = "relatorio.pdf"
+def gerar_dicionario(tecnico, contrato, atividade, data):
+    # Criando o dicionário
+    dados_contratos = {}
+    for cont, atv, dt, tec in zip(contrato, atividade, data, tecnico):
+        if isinstance(tec, str) and tec.strip() != '':  
+            # Verifica se o técnico é uma string não vazia e diferente de 'nam'
+            if cont not in dados_contratos:
+                dados_contratos[cont] = []
+            dados_contratos[cont].append({'atividade': atv, 'data': dt, 'tecnico': tec})
+    return dados_contratos
 
-# Chamada da função para salvar o relatório em PDF
-salvar_relatorio_em_pdf(texto_completo, caminho_pdf)
+def filtrar_atividades(dados_contratos, atividades_a_exibir):
+    # Dicionário para armazenar os contratos com as atividades filtradas
+    dados_filtrados = {}
+    # Iterar sobre cada contrato no dicionário
+    for contrato, atividades in dados_contratos.items():
+        # Lista para armazenar as atividades filtradas para este contrato
+        atividades_filtradas = []
+        # Iterar sobre as atividades deste contrato
+        for atividade in atividades:
+            if atividade['atividade'].lower() in atividades_a_exibir:
+                # Se a atividade estiver na lista de atividades a serem exibidas, adicioná-la à lista de atividades filtradas
+                atividades_filtradas.append(atividade)
+        # Se houver atividades filtradas para este contrato, adicionar ao dicionário de dados filtrados
+        if atividades_filtradas:
+            dados_filtrados[contrato] = atividades_filtradas
+    return dados_filtrados
+
+def consolidar_contratos(dados_filtrados):
+    # Dicionário para armazenar os contratos consolidados
+    contratos_consolidados = {}
+    # Iterar sobre cada contrato no dicionário filtrado
+    for contrato, atividades in dados_filtrados.items():
+        # Se o contrato já estiver no dicionário consolidado, apenas adicione as atividades a ele
+        if contrato in contratos_consolidados:
+            contratos_consolidados[contrato]['atividades'].extend(atividades)
+        else:
+            # Caso contrário, crie uma nova entrada no dicionário consolidado
+            contratos_consolidados[contrato] = {'atividades': atividades}
+
+    return contratos_consolidados
+
+def filtrar_contratos(contratos_consolidados, atividades_a_exibir):
+    # Dicionário para armazenar os contratos filtrados
+    contratos_filtrados = {}
+
+    # Iterar sobre cada contrato no dicionário consolidado
+    for contrato, info in contratos_consolidados.items():
+        # Verificar se o contrato possui mais de uma atividade
+        if len(info['atividades']) > 1:
+            # Lista para armazenar as atividades filtradas para este contrato
+            atividades_filtradas = []
+            # Iterar sobre as atividades deste contrato
+            for atividade in info['atividades']:
+                # Verificar se a atividade está na lista de atividades a serem exibidas
+                if atividade['atividade'].lower() in atividades_a_exibir:
+                    atividades_filtradas.append(atividade)
+            # Se houver atividades filtradas para este contrato, adicionar ao dicionário de contratos filtrados
+            if atividades_filtradas:
+                contratos_filtrados[contrato] = {'atividades': atividades_filtradas}
+    return contratos_filtrados
+
+def salvar_contratos_em_txt(contratos_filtrados, nome_arquivo):
+    try:
+        # Abrir o arquivo de texto para escrita
+        with open(nome_arquivo, 'w') as arquivo:
+            # Variável para contar o número de contratos impressos
+            num_contratos_impressos = 0
+            # Iterar sobre os contratos filtrados
+            for contrato, info in contratos_filtrados.items():
+                # Verificar se o contrato possui mais de uma atividade
+                if len(info['atividades']) > 1:
+                    arquivo.write(f"Contrato: {contrato}\n")
+                    arquivo.write("Atividades:\n")
+                    # Iterar sobre as atividades do contrato
+                    for atividade in info['atividades']:
+                        arquivo.write(f"Atividade: {atividade['atividade']}, Data: {atividade['data']}, Técnico: {atividade['tecnico']}\n")
+                    arquivo.write("\n")  # Adicionar uma linha em branco entre os contratos
+                    num_contratos_impressos += 1
+            
+            # Escrever a quantidade total de contratos impressos no arquivo
+            arquivo.write(f"-----------------------------------------------\nTotal de contratos impressos: {num_contratos_impressos}\n-----------------------------------------------")
+    except Exception as e:
+        print(f"Ocorreu um erro ao salvar as informações dos contratos no arquivo: {e}")
+
+
+caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-03-07-230029.xlsx"
+planilha_nome = "Ordens de Serviço"
+atividades_a_exibir = ["suporte externo", "corretiva"]
+
+df = ler_planhilha(caminho_arquivo, planilha_nome)
+tecnico, contrato, atividade, data = extrair_colunas_interesse(df)
+dados_contratos = gerar_dicionario(tecnico, contrato, atividade, data)
+dados_filtrados = filtrar_atividades(dados_contratos, atividades_a_exibir)
+consolidar_contratos = consolidar_contratos(dados_contratos)
+contratos_filtrados = filtrar_contratos(consolidar_contratos, atividades_a_exibir)
+
+salvar_contratos_em_txt(contratos_filtrados, 'contratos.txt')
+

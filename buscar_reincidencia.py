@@ -1,103 +1,119 @@
 import pandas as pd
 from datetime import datetime
 
-def ler_planilha(caminho_arquivo, planilha_nome):
-    try:
-        df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
-        df = df.drop(df.index[:7])
-        return df
-    except FileNotFoundError:
-        print("O arquivo especificado não pôde ser encontrado.")
-        return None
 
+def ler_planhilha(caminho_arquivo, planilha_nome):
+  try:
+    df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
+    df = df.drop(df.index[:7])
+    return df
+  except FileNotFoundError:
+    print("O arquivo especificado não pôde ser encontrado.")
+    return None
+    
 def extrair_colunas_interesse(df):
-    contrato = df.iloc[:, 2]
-    atividade = df.iloc[:, 8].str.lower()  # Convertendo todas as atividades para minúsculas
-    data = pd.to_datetime(df.iloc[:, 14], errors='coerce')  # Convertendo para datetime e lidando com erros
-    tecnico = df.iloc[:, 15]
-    return contrato, atividade, data, tecnico
+  contrato = df.iloc[:, 2]
+  atividade = df.iloc[:, 8].str.lower()
+  data = pd.to_datetime(df.iloc[:, 14], errors='coerce')
+  tecnico = df.iloc[:, 15]
+  return tecnico, contrato, atividade, data
 
-def gerar_dicionario_contrato_atividade_tecnico(contrato, atividade, data, tecnico, atividades_a_exibir):
-    contrato_atividade_tecnico = {}
-    for c, a, d, t in zip(contrato, atividade, data, tecnico):
-        if pd.notna(c) and pd.notna(t) and not pd.isnull(d):  # Verifica se os dados não são nulos
-            if c not in contrato_atividade_tecnico:
-                contrato_atividade_tecnico[c] = {'atividades': [], 'tecnico': t, 'datas': []}
-            if a in atividades_a_exibir:
-                contrato_atividade_tecnico[c]['atividades'].append(a)
-                contrato_atividade_tecnico[c]['datas'].append(d)
-    return contrato_atividade_tecnico
+def gerar_dicionario(tecnico, contrato, atividade, data):
+    # Criando o dicionário
+    dados_contratos = {}
+    for cont, atv, dt, tec in zip(contrato, atividade, data, tecnico):
+        if isinstance(tec, str) and tec.strip() != '':  
+            # Verifica se o técnico é uma string não vazia e diferente de 'nam'
+            if cont not in dados_contratos:
+                dados_contratos[cont] = []
+            dados_contratos[cont].append({'atividade': atv, 'data': dt, 'tecnico': tec})
+    return dados_contratos
 
-def verificar_suporte_externo(contrato_atividade_tecnico):
-    contratos_suporte_externo = {}
-    for contrato, dados in contrato_atividade_tecnico.items():
-        atividades = dados['atividades']
-        datas = dados['datas']
-        if 'suporte externo' in atividades and len(atividades) > 1:
-            datas_ordenadas = sorted(datas)
-            diferenca_datas = (datas_ordenadas[-1] - datas_ordenadas[0]).days
-            if diferenca_datas <= 15:
-                contratos_suporte_externo[contrato] = {'atividades': ['suporte externo'], 'quantidade': len(atividades), 'datas': datas_ordenadas, 'tecnico': dados['tecnico']}
-    return contratos_suporte_externo
+def filtrar_atividades(dados_contratos, atividades_a_exibir):
+    # Dicionário para armazenar os contratos com as atividades filtradas
+    dados_filtrados = {}
+    # Iterar sobre cada contrato no dicionário
+    for contrato, atividades in dados_contratos.items():
+        # Lista para armazenar as atividades filtradas para este contrato
+        atividades_filtradas = []
+        # Iterar sobre as atividades deste contrato
+        for atividade in atividades:
+            if atividade['atividade'].lower() in atividades_a_exibir:
+                # Se a atividade estiver na lista de atividades a serem exibidas, adicioná-la à lista de atividades filtradas
+                atividades_filtradas.append(atividade)
+        # Se houver atividades filtradas para este contrato, adicionar ao dicionário de dados filtrados
+        if atividades_filtradas:
+            dados_filtrados[contrato] = atividades_filtradas
+    return dados_filtrados
 
-def gerar_relatorio_corretiva(contrato_atividade_tecnico):
-    relatorio_corretiva = []
-    for contrato, dados in contrato_atividade_tecnico.items():
-        atividades = dados['atividades']
-        tecnico = dados['tecnico']
-        datas = dados['datas']
-        for i in range(len(atividades)):
-            if atividades[i] == 'corretiva':
-                relatorio_corretiva.append({'contrato': contrato, 'atividade': atividades[i], 'tecnico': tecnico, 'data': datas[i]})
-    return relatorio_corretiva
+def consolidar_contratos(dados_filtrados):
+    # Dicionário para armazenar os contratos consolidados
+    contratos_consolidados = {}
+    # Iterar sobre cada contrato no dicionário filtrado
+    for contrato, atividades in dados_filtrados.items():
+        # Se o contrato já estiver no dicionário consolidado, apenas adicione as atividades a ele
+        if contrato in contratos_consolidados:
+            contratos_consolidados[contrato]['atividades'].extend(atividades)
+        else:
+            # Caso contrário, crie uma nova entrada no dicionário consolidado
+            contratos_consolidados[contrato] = {'atividades': atividades}
 
-def gerar_relatorio(caminho):
-    #caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-03-07-230029.xlsx"
-    caminho_arquivo = caminho
-    planilha_nome = "Ordens de Serviço"
-    tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves"]
-    atividades_a_exibir = ["suporte externo", "corretiva"]
+    return contratos_consolidados
 
-    df = ler_planilha(caminho_arquivo, planilha_nome)
-    if df is not None:
-        contrato, atividade, data, tecnico = extrair_colunas_interesse(df)
-        
-        # Remover valores "nan" da lista de técnicos
-        tecnico = tecnico.dropna()
-        
-        # Remover técnicos que estão na lista de técnicos a evitar
-        tecnico = tecnico[~tecnico.isin(tecnicos_a_evitar)]
-        
-        # Remover atividades que não estão na lista de atividades a exibir
-        atividade = atividade[atividade.isin(atividades_a_exibir)]
-        
-        # Criar dicionário com contrato como chave e atividades, técnico e datas como valores
-        contrato_atividade_tecnico = gerar_dicionario_contrato_atividade_tecnico(contrato, atividade, data, tecnico, atividades_a_exibir)
-        
-        # Verificar e gerar relatório para atividade 'suporte externo'
-        relatorio_suporte_externo = verificar_suporte_externo(contrato_atividade_tecnico)
-        
-        # Gerar relatório para atividade 'corretiva'
-        relatorio_corretiva = gerar_relatorio_corretiva(contrato_atividade_tecnico)
-        
-        # Salvar a saída em um arquivo de texto
-        with open("relatório_reincidência.txt", "w") as file:
-            file.write(f"---------------------------------------------------\n-------->  Relatório Suporte Externo: {len(relatorio_suporte_externo)}  <--------\n---------------------------------------------------\n")
-            for contrato, dados in relatorio_suporte_externo.items():
-                file.write(f'Contrato: {contrato}\n')
-                file.write(f'Atividades: {dados["atividades"]}\n')
-                file.write(f'Quantidade de Repetições: {dados["quantidade"]}\n')
-                file.write(f'Técnico: {dados["tecnico"]}\n')
-                file.write(f'Datas: {", ".join(map(str, dados["datas"]))}\n')
-                file.write('\n')
-            file.write("---------------------------------------------------")
+def filtrar_contratos(contratos_consolidados, atividades_a_exibir):
+    # Dicionário para armazenar os contratos filtrados
+    contratos_filtrados = {}
+
+    # Iterar sobre cada contrato no dicionário consolidado
+    for contrato, info in contratos_consolidados.items():
+        # Verificar se o contrato possui mais de uma atividade
+        if len(info['atividades']) > 1:
+            # Lista para armazenar as atividades filtradas para este contrato
+            atividades_filtradas = []
+            # Iterar sobre as atividades deste contrato
+            for atividade in info['atividades']:
+                # Verificar se a atividade está na lista de atividades a serem exibidas
+                if atividade['atividade'].lower() in atividades_a_exibir:
+                    atividades_filtradas.append(atividade)
+            # Se houver atividades filtradas para este contrato, adicionar ao dicionário de contratos filtrados
+            if atividades_filtradas:
+                contratos_filtrados[contrato] = {'atividades': atividades_filtradas}
+    return contratos_filtrados
+
+def salvar_contratos_em_txt(contratos_filtrados, nome_arquivo):
+    try:
+        # Abrir o arquivo de texto para escrita
+        with open(nome_arquivo, 'w') as arquivo:
+            # Variável para contar o número de contratos impressos
+            num_contratos_impressos = 0
+            # Iterar sobre os contratos filtrados
+            for contrato, info in contratos_filtrados.items():
+                # Verificar se o contrato possui mais de uma atividade
+                if len(info['atividades']) > 1:
+                    arquivo.write(f"Contrato: {contrato}\n")
+                    arquivo.write("Atividades:\n")
+                    # Iterar sobre as atividades do contrato
+                    for atividade in info['atividades']:
+                        arquivo.write(f"Atividade: {atividade['atividade']}, Data: {atividade['data']}, Técnico: {atividade['tecnico']}\n")
+                    arquivo.write("\n")  # Adicionar uma linha em branco entre os contratos
+                    num_contratos_impressos += 1
             
-            file.write(f"\n--------------------------------\n---> Relatório Corretiva: {len(relatorio_corretiva)} <---\n--------------------------------\n")
-            for dados in relatorio_corretiva:
-                file.write(f'Contrato: {dados["contrato"]}\n')
-                file.write(f'Atividade: {dados["atividade"]}\n')
-                file.write(f'Técnico: {dados["tecnico"]}\n')
-                file.write(f'Data: {dados["data"]}\n')
-                file.write('\n')
+            # Escrever a quantidade total de contratos impressos no arquivo
+            arquivo.write(f"-----------------------------------------------\nTotal de contratos impressos: {num_contratos_impressos}\n-----------------------------------------------")
+    except Exception as e:
+        print(f"Ocorreu um erro ao salvar as informações dos contratos no arquivo: {e}")
 
+
+caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-03-07-230029.xlsx"
+planilha_nome = "Ordens de Serviço"
+atividades_a_exibir = ["suporte externo", "corretiva"]
+
+df = ler_planhilha(caminho_arquivo, planilha_nome)
+tecnico, contrato, atividade, data = extrair_colunas_interesse(df)
+dados_contratos = gerar_dicionario(tecnico, contrato, atividade, data)
+dados_filtrados = filtrar_atividades(dados_contratos, atividades_a_exibir)
+consolidar_contratos = consolidar_contratos(dados_contratos)
+contratos_filtrados = filtrar_contratos(consolidar_contratos, atividades_a_exibir)
+
+salvar_contratos_em_txt(contratos_filtrados, 'contratos.txt')
 
