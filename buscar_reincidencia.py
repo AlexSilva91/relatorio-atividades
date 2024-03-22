@@ -37,7 +37,7 @@ def filtrar_atividades(dados_contratos, atividades_a_exibir):
             dados_filtrados[contrato] = atividades_filtradas
     return dados_filtrados
 
-def consolidar_contratos(dados_filtrados, atividades_a_exibir):
+def consolidar_contratos_funcao(dados_filtrados, atividades_a_exibir):
     contratos_consolidados = {}
     for contrato, atividades in dados_filtrados.items():
         atividades_filtradas = []
@@ -93,21 +93,21 @@ def salvar_contratos_em_txt(contratos_salvos, nome_arquivo):
     except Exception as e:
         print(f"Ocorreu um erro ao salvar as informações dos contratos no arquivo: {e}")
 
+def buscar_reinicidencia(caminho_arq):
+    caminho_arquivo = caminho_arq
+    planilha_nome = "Ordens de Serviço"
+    atividades_a_exibir = ["suporte externo", "corretiva"]
 
-caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-03-07-230029.xlsx"
-planilha_nome = "Ordens de Serviço"
-atividades_a_exibir = ["suporte externo", "corretiva"]
+    df = ler_planilha(caminho_arquivo, planilha_nome)
+    tecnico, contrato, atividade, data = extrair_colunas_interesse(df)
+    dados_contratos = gerar_dicionario(tecnico, contrato, atividade, data)
+    dados_filtrados = filtrar_atividades(dados_contratos, atividades_a_exibir)
+    consolidar_contratos_variavel = consolidar_contratos_funcao(dados_filtrados, atividades_a_exibir) # Renomeada a variável
+    contratos_filtrados = filtrar_contratos(consolidar_contratos_variavel, atividades_a_exibir)
 
-df = ler_planilha(caminho_arquivo, planilha_nome)
-tecnico, contrato, atividade, data = extrair_colunas_interesse(df)
-dados_contratos = gerar_dicionario(tecnico, contrato, atividade, data)
-dados_filtrados = filtrar_atividades(dados_contratos, atividades_a_exibir)
-consolidar_contratos = consolidar_contratos(dados_contratos, atividades_a_exibir)
-contratos_filtrados = filtrar_contratos(consolidar_contratos, atividades_a_exibir)
+    contratos_salvos = verificar_e_salvar_contratos(contratos_filtrados)
 
-contratos_salvos = verificar_e_salvar_contratos(contratos_filtrados)
+    resultado_apos_filtro = verificar_e_salvar_contratos(contratos_filtrados)
 
-resultado_apos_filtro = verificar_e_salvar_contratos(contratos_filtrados)
+    salvar_contratos_em_txt(resultado_apos_filtro, "reincidência.txt")
 
-salvar_contratos_em_txt(resultado_apos_filtro, "reincidência.txt")
-#salvar_contratos_em_txt(contratos_salvos, 'contratos.txt')

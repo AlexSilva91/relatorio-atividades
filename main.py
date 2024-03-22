@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QVBoxLayout, QPushButton, QLabel
 from PyQt5.QtWidgets import QWidget
 from acessar_planilha import processar_dados_planilha
-from buscar_reincidencia import gerar_relatorio
+from buscar_reincidencia import buscar_reinicidencia
 
 caminho_arquivo = None  # Inicializa a variável caminho_arquivo como None
 
@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
         if not caminho_arquivo:
             self.label_file.setText("Por favor, selecione um arquivo.")
             return
-        gerar_relatorio(caminho_arquivo)
+        buscar_reinicidencia(caminho_arquivo)
         self.label_file.setText("Relatório de reincidência gerado!")
 
 app = QApplication([])
