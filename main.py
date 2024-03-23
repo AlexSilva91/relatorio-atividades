@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QVBoxLayout, QPushButton, QLabel
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QIcon
 from acessar_planilha import processar_dados_planilha
 from buscar_reincidencia import buscar_reinicidencia
 
@@ -11,6 +12,8 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Selecionar Arquivo")
         self.setGeometry(100, 100, 400, 200)
+
+        self.setWindowIcon(QIcon('report.ico1'))
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
