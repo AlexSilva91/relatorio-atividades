@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Selecionar Arquivo")
         self.setGeometry(100, 100, 400, 200)
 
-        self.setWindowIcon(QIcon('report.ico1'))
+        self.setWindowIcon(QIcon('report.ico'))
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
