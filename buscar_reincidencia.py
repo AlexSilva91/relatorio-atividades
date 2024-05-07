@@ -70,7 +70,7 @@ def verificar_e_salvar_contratos(contratos_filtrados):
             menor_data_servico = min(datas_servico)
             salvar_contrato = True
             for data_servico in datas_servico:
-                if (data_servico - menor_data_servico).days > 15:
+                if (data_servico - menor_data_servico).days > 30:
                     salvar_contrato = False
                     break
             if salvar_contrato:
@@ -105,7 +105,7 @@ def buscar_reinicidencia(caminho_arq):
     consolidar_contratos_variavel = consolidar_contratos_funcao(dados_filtrados, atividades_a_exibir) # Renomeada a variável
     contratos_filtrados = filtrar_contratos(consolidar_contratos_variavel, atividades_a_exibir)
 
-    contratos_salvos = verificar_e_salvar_contratos(contratos_filtrados)
+    #contratos_salvos = verificar_e_salvar_contratos(contratos_filtrados)
 
     resultado_apos_filtro = verificar_e_salvar_contratos(contratos_filtrados)
 
