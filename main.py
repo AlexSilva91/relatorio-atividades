@@ -1,10 +1,14 @@
+import pandas as pd
 from PyQt5.QtWidgets import QApplication, QDateEdit, QVBoxLayout, QMainWindow, QFileDialog, QPushButton, QLabel, QWidget
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QIcon
-from acessar_planilha import processar_dados_planilha
+#from acessar_planilha import processar_dados_planilha
 from buscar_reincidencia import buscar_reinicidencia
+from acess import processar_dados_planilha
 
 caminho_arquivo = None
+data_inicial = None
+data_final = None
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -76,28 +80,42 @@ class MainWindow(QMainWindow):
                 caminho_arquivo = None
 
     def my_function(self):
-        global caminho_arquivo
+        global caminho_arquivo, data_inicial, data_final
         if not caminho_arquivo:
             self.label_file.setText("Por favor, selecione um arquivo.")
             return
-        processar_dados_planilha(caminho_arquivo)
+        if data_inicial is None or data_final is None:
+            self.label_file.setText("Por favor, selecione as datas inicial e final.")
+            return
+        processar_dados_planilha(caminho_arquivo, data_inicial, data_final)
         self.label_file.setText("Relatório de serviços gerado!")
 
     def gerar_reincidecia(self):
-        global caminho_arquivo
+        global caminho_arquivo, data_inicial, data_final
         if not caminho_arquivo:
             self.label_file.setText("Por favor, selecione um arquivo.")
+            return
+        if not data_inicial or not data_final:
+            self.label_file.setText("Por favor, selecione as datas inicial e final.")
             return
         buscar_reinicidencia(caminho_arquivo)
         self.label_file.setText("Relatório de reincidência gerado!")
         
     def check_date1(self, new_date):
+        global data_inicial
+        # Garante que a data inicial não seja posterior à data atual
         if new_date > QDate.currentDate():
             self.date_edit1.setDate(QDate.currentDate())
+        else:
+            data_inicial = new_date.toString("yyyy-MM-dd")
 
     def check_date2(self, new_date):
+        global data_final
+        # Garante que a data final não seja posterior à data atual
         if new_date > QDate.currentDate():
             self.date_edit2.setDate(QDate.currentDate())
+        else:
+            data_final = new_date.toString("yyyy-MM-dd")
 
 app = QApplication([])
 window = MainWindow()
