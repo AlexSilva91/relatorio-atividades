@@ -54,11 +54,20 @@ def salvar_em_txt(tecnicos_atividades, data_inicial, data_final):
     data_end_str = data_final.strftime('%Y-%m-%d')
 
     with open(f"Relatório_{data_init_str}_{data_end_str}.txt", "w") as arquivo_saida:
+        total_geral = 0
+        arquivo_saida.write("-------------------------------------------------\n")
+        arquivo_saida.write("-----> Relatório de Atividades por Técnico <-----\n")
+        arquivo_saida.write("-------------------------------------------------")
         for tecnico, atividades in tecnicos_atividades.items():
-            arquivo_saida.write(f"Técnico: {tecnico}\n")
+            arquivo_saida.write(f"\n********************************\nTécnico: {tecnico}\n********************************\n")
+            total_atividades_tecnico = sum(atividades.values())
+            total_geral += total_atividades_tecnico  # Adiciona o total do técnico ao total geral
+            arquivo_saida.write(f"\n++++++++++++++++++++++++\nTotal de atividades: {total_atividades_tecnico}\n++++++++++++++++++++++++\n")
             for atividade, contagem in atividades.items():
-                arquivo_saida.write(f"Atividade: {atividade} = {contagem}\n")
+                arquivo_saida.write(f"- Atividade: {atividade} = {contagem}\n")
             arquivo_saida.write("\n")  # Adicione uma linha em branco entre cada técnico
+        
+        arquivo_saida.write(f"********************************\nTotal geral de atividades: {total_geral}\n********************************\n")
 
 def processar_dados_planilha(caminho, data_init, data_end):
 
@@ -68,7 +77,7 @@ def processar_dados_planilha(caminho, data_init, data_end):
     data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d')
     data_final = datetime.strptime(data_final, '%Y-%m-%d')
 
-    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC"]
+    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda"]
 
     df = ler_planilha(caminho, "Ordens de Serviço")
     tecnico, atividade, data = extrair_colunas_interesse(df)
