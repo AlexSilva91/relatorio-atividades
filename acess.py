@@ -57,7 +57,7 @@ def salvar_em_txt(tecnicos_atividades, data_inicial, data_final):
         total_geral = 0
         arquivo_saida.write("-------------------------------------------------\n")
         arquivo_saida.write("-----> Relatório de Atividades por Técnico <-----\n")
-        arquivo_saida.write("-------------------------------------------------")
+        arquivo_saida.write("-------------------------------------------------\n")
         for tecnico, atividades in tecnicos_atividades.items():
             arquivo_saida.write(f"\n********************************\nTécnico: {tecnico}\n********************************\n")
             total_atividades_tecnico = sum(atividades.values())

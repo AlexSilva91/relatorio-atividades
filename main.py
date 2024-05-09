@@ -1,4 +1,3 @@
-import pandas as pd
 from PyQt5.QtWidgets import QApplication, QDateEdit, QVBoxLayout, QMainWindow, QFileDialog, QPushButton, QLabel, QWidget
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QIcon
@@ -38,14 +37,14 @@ class MainWindow(QMainWindow):
         self.date_edit1 = QDateEdit()
         self.date_edit1.setFixedSize(200, 30)  # Definindo o tamanho do campo de data
         self.date_edit1.setCalendarPopup(True)
-        self.date_edit1.setDate(QDate.currentDate())
+        self.date_edit1.setDate(QDate.currentDate())  # Definindo a data atual
         self.date_edit1.dateChanged.connect(self.check_date1)  # Conectando o sinal dateChanged ao slot check_date1
 
         self.title_label2 = QLabel("Data Final:")
         self.date_edit2 = QDateEdit()
         self.date_edit2.setFixedSize(200, 30)  # Definindo o tamanho do campo de data
         self.date_edit2.setCalendarPopup(True)
-        self.date_edit2.setDate(QDate.currentDate())
+        self.date_edit2.setDate(QDate.currentDate())  # Definindo a data atual
         self.date_edit2.dateChanged.connect(self.check_date2)  # Conectando o sinal dateChanged ao slot check_date2
 
         self.layout.addWidget(self.title_label1)
@@ -68,6 +67,14 @@ class MainWindow(QMainWindow):
         self.label_file = QLabel()
         self.layout.addWidget(self.label_file)
 
+
+    def valida_data(self):
+        global data_inicial, data_final
+        if not data_inicial or not data_final:
+            data_inicial = QDate.currentDate().toString(Qt.ISODate)
+            data_final = QDate.currentDate().toString(Qt.ISODate)
+            return
+
     def open_file(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Selecionar Arquivo")
         if filename:
@@ -75,6 +82,7 @@ class MainWindow(QMainWindow):
                 global caminho_arquivo
                 caminho_arquivo = filename
                 self.label_file.setText(f"Arquivo: {filename}")
+                self.valida_data()
             else:
                 self.label_file.setText("Por favor, selecione um arquivo .xlsx.")
                 caminho_arquivo = None
@@ -84,11 +92,9 @@ class MainWindow(QMainWindow):
         if not caminho_arquivo:
             self.label_file.setText("Por favor, selecione um arquivo.")
             return
-        if data_inicial is None or data_final is None:
-            self.label_file.setText("Por favor, selecione as datas inicial e final.")
-            return
         processar_dados_planilha(caminho_arquivo, data_inicial, data_final)
         self.label_file.setText("Relatório de serviços gerado!")
+
 
     def gerar_reincidecia(self):
         global caminho_arquivo, data_inicial, data_final
@@ -103,19 +109,24 @@ class MainWindow(QMainWindow):
         
     def check_date1(self, new_date):
         global data_inicial
-        # Garante que a data inicial não seja posterior à data atual
-        if new_date > QDate.currentDate():
-            self.date_edit1.setDate(QDate.currentDate())
+        current_date = QDate.currentDate()
+        if new_date.isNull():  # Verifica se a data selecionada é nula
+            data_inicial = current_date.toString(Qt.ISODate)  # Atribui a data atual se nenhuma data for selecionada
+        elif new_date <= current_date:  # Verifica se a data selecionada é igual ou anterior à data atual
+            data_inicial = new_date.toString(Qt.ISODate)
         else:
-            data_inicial = new_date.toString("yyyy-MM-dd")
+            self.date_edit1.setDate(current_date)  # Define a data atual se a data selecionada for posterior à data atual
 
     def check_date2(self, new_date):
         global data_final
-        # Garante que a data final não seja posterior à data atual
-        if new_date > QDate.currentDate():
-            self.date_edit2.setDate(QDate.currentDate())
+        current_date = QDate.currentDate()
+        if new_date.isNull():  # Verifica se a data selecionada é nula
+            data_final = current_date.toString(Qt.ISODate)  # Atribui a data atual se nenhuma data for selecionada
+        elif new_date <= current_date:  # Verifica se a data selecionada é igual ou anterior à data atual
+            data_final = new_date.toString(Qt.ISODate)
         else:
-            data_final = new_date.toString("yyyy-MM-dd")
+            self.date_edit2.setDate(current_date)  # Define a data atual se a data selecionada for posterior à data atual
+
 
 app = QApplication([])
 window = MainWindow()
