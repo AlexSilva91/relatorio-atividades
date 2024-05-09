@@ -1,9 +1,6 @@
 import pandas as pd
+from datetime import datetime
 from collections import Counter, OrderedDict
-from textwrap import wrap
-from auxiliar_por_atividade import get_resultado_formatado
-from buscar_auxiliar import get_auxiliar
-
 
 def ler_planilha(caminho_arquivo, planilha_nome):
     df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
@@ -11,12 +8,28 @@ def ler_planilha(caminho_arquivo, planilha_nome):
     return df
 
 def extrair_colunas_interesse(df):
-    tecnico = df.iloc[:, 15]
     atividade = df.iloc[:, 8]
-    return tecnico, atividade
+    data = pd.to_datetime(df.iloc[:, 14], errors='coerce').dt.date
+    tecnico = df.iloc[:, 15]
+    return tecnico, atividade, data
 
-def criar_lista_tuplas(tecnico, atividade):
-    return list(zip(tecnico, atividade))
+def criar_lista_tuplas(tecnico, atividade, data):
+    return list(zip(tecnico, atividade, data))
+
+def filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas):
+    data_inicial_com_horario = datetime.combine(data_inicial, datetime.min.time())
+    data_final_com_horario = datetime.combine(data_final, datetime.max.time())
+
+    atividades_filtradas = []
+    for tupla in lista_tuplas:
+        # Convertendo tupla[2] para datetime.datetime
+        data_tupla = datetime.combine(tupla[2], datetime.min.time())
+
+        if data_inicial_com_horario <= data_tupla <= data_final_com_horario:
+            # Extrair nome do técnico e atividade
+            nome_tecnico, atividade, _ = tupla
+            atividades_filtradas.append((nome_tecnico, atividade))
+    return atividades_filtradas
 
 def contar_atividades_repetidas(lista):
     return Counter(lista)
@@ -36,65 +49,60 @@ def processar_tecnicos_atividades(contagem_atividades, tecnicos_a_evitar):
 
     return OrderedDict(sorted(tecnicos_atividades.items()))
 
-def remover_repeticao_auxiliar(lista_auxiliar, lista_auxiliar_proibido):
-    # Filtra as atividades associadas aos técnicos que queremos evitar
-    atividades_filtradas = [atividade for tecnico, atividade in lista_auxiliar if tecnico not in lista_auxiliar_proibido]
+def salvar_em_txt(tecnicos_atividades, data_inicial, data_final):
+    data_init_str = data_inicial.strftime('%Y-%m-%d')
+    data_end_str = data_final.strftime('%Y-%m-%d')
 
-    # Obtém a quantidade total de atividades filtradas  
-    total_atividades = len(atividades_filtradas)
-    return total_atividades
-
-def salvar_resultado_em_arquivo(tecnicos_atividades, total, total_ajuda , resultado_formatado):
-    with open("relatório_técnicos.txt", "w") as arquivo:
-        arquivo.write("-------------------------------------------------\n")
-        arquivo.write("-----> Relatório de Atividades por Técnico <-----\n")
-        arquivo.write("-------------------------------------------------")
-
+    with open(f"Relatório_{data_init_str}_{data_end_str}.txt", "w") as arquivo_saida:
+        total_geral = 0
+        arquivo_saida.write("-------------------------------------------------\n")
+        arquivo_saida.write("-----> Relatório de Atividades por Técnico <-----\n")
+        arquivo_saida.write("-------------------------------------------------\n")
         for tecnico, atividades in tecnicos_atividades.items():
-            arquivo.write(f"\n********************************\nTécnico: {tecnico}\n********************************\n")
-
-            total_por_tecnico = 0
-            atividades = OrderedDict(sorted(atividades.items()))
-
+            arquivo_saida.write(f"\n********************************\nTécnico: {tecnico}\n********************************\n")
+            total_atividades_tecnico = sum(atividades.values())
+            total_geral += total_atividades_tecnico  # Adiciona o total do técnico ao total geral
+            arquivo_saida.write(f"\n++++++++++++++++++++++++\nTotal de atividades: {total_atividades_tecnico}\n++++++++++++++++++++++++\n")
             for atividade, contagem in atividades.items():
-                texto_formatado = wrap(f"  {atividade}: {contagem}\n", width=70)
-                arquivo.write("\n".join(texto_formatado) + "\n")
+                arquivo_saida.write(f"- Atividade: {atividade} = {contagem}\n")
+            arquivo_saida.write("\n")  # Adicione uma linha em branco entre cada técnico
+        
+        arquivo_saida.write(f"********************************\nTotal geral de atividades: {total_geral}\n********************************\n")
 
-                total_por_tecnico += contagem
-                total[0] += contagem
+def processar_dados_planilha(caminho, data_init, data_end):
 
-            contagem_str = f"{total_por_tecnico}"
-            linhas = sorted([f"\n-----> Total: {contagem_str} <-----"], reverse=True)
+    data_inicial = data_init
+    data_final = data_end
 
-            arquivo.write("\n".join(linhas) + "\n")
-        total[0] -= total_ajuda
-        arquivo.write(f"\n++++++++++++++++++++++++++++++++\n Total geral de atividade: {total[0]}\n++++++++++++++++++++++++++++++++\n")
-        arquivo.write("\n-------------------------------------------------\n")
-        arquivo.write(" ---> Relatório de Atividades por Auxiliar <----\n")
-        arquivo.write("-------------------------------------------------\n")
-        arquivo.write('\n'+resultado_formatado)
-        arquivo.write(f"\n+++++++++++++++++++++++++++++++\n  Total geral de ajudas: {total_ajuda}\n+++++++++++++++++++++++++++++++\n")
+    data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d')
+    data_final = datetime.strptime(data_final, '%Y-%m-%d')
 
-def processar_dados_planilha(caminho):
-    # Uso das funções
-    caminho_arquivo = caminho
-    planilha_nome = "Ordens de Serviço"
-    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves"]
+    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda"]
 
-    df = ler_planilha(caminho_arquivo, planilha_nome)
-    tecnico, atividade = extrair_colunas_interesse(df)
-    lista_tuplas = criar_lista_tuplas(tecnico, atividade)
+    df = ler_planilha(caminho, "Ordens de Serviço")
+    tecnico, atividade, data = extrair_colunas_interesse(df)
+    lista_tuplas = criar_lista_tuplas(tecnico, atividade, data)
     
-    # Adicionando as tuplas obtidas de get_auxiliar à lista_tuplas
-    lista_auxiliar = get_auxiliar(caminho)
-    lista_tuplas += lista_auxiliar
-    total_ajuda = remover_repeticao_auxiliar(lista_auxiliar, lista_tecnicos_a_evitar)
+    # Aqui, passamos diretamente os objetos datetime para a função filtrar_atividades_por_data
+    tupla_result = filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas)
+
+    indice = 0
+    for t in tupla_result:
+        print(f"{t}\n")
+        indice += 1
+
+    print(f"Total=> {indice}")
     
-    contagem_atividades = contar_atividades_repetidas(lista_tuplas)
+    contagem_atividades = contar_atividades_repetidas(tupla_result)
     total = [0]  # Usando uma lista para contornar a limitação do escopo
 
     tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
 
-    salvar_resultado_em_arquivo(tecnicos_atividades, total, total_ajuda, get_resultado_formatado(caminho))
+    print(tecnicos_atividades)
+
+    # Salvar os dados no arquivo de texto
+    salvar_em_txt(tecnicos_atividades, data_inicial, data_final)
 
 
+#caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-05-07-202826.xlsx"
+#processar_dados_planilha(caminho_arquivo, data_inicial, data_final)
