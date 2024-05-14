@@ -16,10 +16,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Selecionar Arquivo")
         self.setGeometry(100, 100, 400, 200)
         self.setWindowIcon(QIcon('report.ico'))
-
-        # Definindo o background da janela principal com uma cor acinzentada
-        #self.setStyleSheet("background-color: #f0f0f0;")
-
+        
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
