@@ -84,10 +84,9 @@ def processar_dados_planilha(caminho, data_init, data_end):
     lista_tuplas = criar_lista_tuplas(tecnico, atividade, data)
     
     # Aqui, passamos diretamente os objetos datetime para a função filtrar_atividades_por_data
-    tupla_result = filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas)s
+    tupla_result = filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas)
     
     contagem_atividades = contar_atividades_repetidas(tupla_result)
-    total = [0]  # Usando uma lista para contornar a limitação do escopo
 
     tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
 
