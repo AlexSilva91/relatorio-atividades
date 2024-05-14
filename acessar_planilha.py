@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 from collections import Counter, OrderedDict
+from auxiliar_por_atividade import get_resultado_formatado
 
 def ler_planilha(caminho_arquivo, planilha_nome):
     df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
@@ -49,7 +50,25 @@ def processar_tecnicos_atividades(contagem_atividades, tecnicos_a_evitar):
 
     return OrderedDict(sorted(tecnicos_atividades.items()))
 
-def salvar_em_txt(tecnicos_atividades, data_inicial, data_final):
+def atualizar_tecnico_atividades(contagem_por_auxiliar, tecnico_atividades):
+    for auxiliar, atividades in contagem_por_auxiliar.items():
+        tecnico = auxiliar[-1]  # Obtém o último elemento (nome do técnico)
+        if tecnico in tecnico_atividades:
+            for atividade, quantidade in atividades.items():
+                if atividade in tecnico_atividades[tecnico]:
+                    # Atualiza a quantidade da atividade existente
+                    tecnico_atividades[tecnico][atividade] += quantidade
+                else:
+                    # Adiciona uma nova atividade
+                    tecnico_atividades[tecnico][atividade] = quantidade
+        else:
+            # Adiciona um novo registro para o técnico
+            tecnico_atividades[tecnico] = atividades
+
+    return tecnico_atividades
+
+
+def salvar_em_txt(tecnicos_atividades, data_inicial, data_final, resultado_formatado, total_servicos):
     data_init_str = data_inicial.strftime('%Y-%m-%d')
     data_end_str = data_final.strftime('%Y-%m-%d')
 
@@ -67,7 +86,11 @@ def salvar_em_txt(tecnicos_atividades, data_inicial, data_final):
                 arquivo_saida.write(f"- Atividade: {atividade} = {contagem}\n")
             arquivo_saida.write("\n")  # Adicione uma linha em branco entre cada técnico
         
-        arquivo_saida.write(f"********************************\nTotal geral de atividades: {total_geral}\n********************************\n")
+        arquivo_saida.write(f"********************************\nTotal geral de atividades: {total_geral-total_servicos}\n********************************\n")
+        arquivo_saida.write("--------------------------------------------\n")
+        arquivo_saida.write("-----> Relatório de ajuda por Técnico <-----\n")
+        arquivo_saida.write("--------------------------------------------\n")
+        arquivo_saida.write(f"{resultado_formatado}\n")
 
 def processar_dados_planilha(caminho, data_init, data_end):
 
@@ -76,6 +99,9 @@ def processar_dados_planilha(caminho, data_init, data_end):
 
     data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d')
     data_final = datetime.strptime(data_final, '%Y-%m-%d')
+    #chama Acess
+    resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar = get_resultado_formatado(caminho, data_init, data_end)
+
 
     lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda", "jonatas.thiago"]
 
@@ -90,9 +116,10 @@ def processar_dados_planilha(caminho, data_init, data_end):
 
     tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
 
+    tecnico_atividades_atualizado = atualizar_tecnico_atividades(contagem_por_auxiliar, tecnicos_atividades)
 
     # Salvar os dados no arquivo de texto
-    salvar_em_txt(tecnicos_atividades, data_inicial, data_final)
+    salvar_em_txt(tecnico_atividades_atualizado, data_inicial, data_final, resultado_formatado, total_servicos)
 
 
 #caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-05-07-202826.xlsx"
