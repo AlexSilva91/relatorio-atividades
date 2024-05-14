@@ -77,28 +77,20 @@ def processar_dados_planilha(caminho, data_init, data_end):
     data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d')
     data_final = datetime.strptime(data_final, '%Y-%m-%d')
 
-    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda"]
+    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda", "jonatas.thiago"]
 
     df = ler_planilha(caminho, "Ordens de Serviço")
     tecnico, atividade, data = extrair_colunas_interesse(df)
     lista_tuplas = criar_lista_tuplas(tecnico, atividade, data)
     
     # Aqui, passamos diretamente os objetos datetime para a função filtrar_atividades_por_data
-    tupla_result = filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas)
-
-    indice = 0
-    for t in tupla_result:
-        print(f"{t}\n")
-        indice += 1
-
-    print(f"Total=> {indice}")
+    tupla_result = filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas)s
     
     contagem_atividades = contar_atividades_repetidas(tupla_result)
     total = [0]  # Usando uma lista para contornar a limitação do escopo
 
     tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
 
-    print(tecnicos_atividades)
 
     # Salvar os dados no arquivo de texto
     salvar_em_txt(tecnicos_atividades, data_inicial, data_final)

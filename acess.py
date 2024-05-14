@@ -1,6 +1,8 @@
 import pandas as pd
+from collections import defaultdict, Counter
 from datetime import datetime
-from collections import Counter, OrderedDict
+
+global resultado_formatado
 
 def ler_planilha(caminho_arquivo, planilha_nome):
     df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
@@ -9,100 +11,100 @@ def ler_planilha(caminho_arquivo, planilha_nome):
 
 def extrair_colunas_interesse(df):
     atividade = df.iloc[:, 8]
-    data = pd.to_datetime(df.iloc[:, 14], errors='coerce').dt.date
     tecnico = df.iloc[:, 15]
-    return tecnico, atividade, data
+    data = pd.to_datetime(df.iloc[:, 14], errors='coerce').dt.date
+    auxiliar = df.iloc[:, 16]
+    return tecnico, auxiliar, atividade, data
 
-def criar_lista_tuplas(tecnico, atividade, data):
-    return list(zip(tecnico, atividade, data))
 
-def filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas):
-    data_inicial_com_horario = datetime.combine(data_inicial, datetime.min.time())
-    data_final_com_horario = datetime.combine(data_final, datetime.max.time())
+def criar_lista_tuplas(tecnico, auxiliar, atividade, data):
+    return list(zip(tecnico, auxiliar, atividade, data))
 
-    atividades_filtradas = []
+def buscar_por_intervalo_tempo(lista_tuplas, data_inicial, data_final):
+    resultado = []
     for tupla in lista_tuplas:
-        # Convertendo tupla[2] para datetime.datetime
-        data_tupla = datetime.combine(tupla[2], datetime.min.time())
+        data_tupla = tupla[3] # Convertendo a string de data para objeto datetime e pegando apenas a parte da data
+        if data_inicial <= data_tupla <= data_final:
+            resultado.append(tupla)
+    return resultado
 
-        if data_inicial_com_horario <= data_tupla <= data_final_com_horario:
-            # Extrair nome do técnico e atividade
-            nome_tecnico, atividade, _ = tupla
-            atividades_filtradas.append((nome_tecnico, atividade))
-    return atividades_filtradas
+def gerar_dicionario(caminho_arquivo, data_inicial, data_final):
+    data_init = data_inicial
+    data_end = data_final
 
-def contar_atividades_repetidas(lista):
-    return Counter(lista)
+    global resultado_formatado
+    planilha_nome = "Ordens de Serviço"
+    df = ler_planilha(caminho_arquivo, planilha_nome)
+    tecnico, auxiliar, atividade, data = extrair_colunas_interesse(df)
+    list_tuplas = criar_lista_tuplas(tecnico, auxiliar, atividade, data)
+    new_list_dtInt_dtEnd = buscar_por_intervalo_tempo(list_tuplas, data_init, data_end)
+    
 
-def processar_tecnicos_atividades(contagem_atividades, tecnicos_a_evitar):
-    tecnicos_atividades = {}
+    return new_list_dtInt_dtEnd
 
-    for (tecnico, atividade), contagem in contagem_atividades.items():
+def contar_atividades_por_auxiliar(lista_tuplas, tecnicos_a_evitar, auxiliares_a_evitar):
+    vinculo_tecnico_auxiliares = defaultdict(set)
+    contagem_por_auxiliar = defaultdict(Counter)
+
+    for tecnico, auxiliar, atividade in lista_tuplas:
         if not isinstance(tecnico, str) or tecnico.strip() == "":
             continue
 
-        if tecnico not in tecnicos_a_evitar:
-            if tecnico not in tecnicos_atividades:
-                tecnicos_atividades[tecnico] = {}
+        if tecnico in tecnicos_a_evitar or auxiliar in auxiliares_a_evitar:
+            continue
 
-            tecnicos_atividades[tecnico][atividade] = contagem
+        if pd.notna(auxiliar):  # Verifica se o valor não é NaN
+            vinculo_tecnico_auxiliares[tecnico].add(auxiliar)
+            contagem_por_auxiliar[(tecnico, auxiliar)][atividade] += 1
 
-    return OrderedDict(sorted(tecnicos_atividades.items()))
+    return dict(vinculo_tecnico_auxiliares), dict(contagem_por_auxiliar)
 
-def salvar_em_txt(tecnicos_atividades, data_inicial, data_final):
-    data_init_str = data_inicial.strftime('%Y-%m-%d')
-    data_end_str = data_final.strftime('%Y-%m-%d')
-
-    with open(f"Relatório_{data_init_str}_{data_end_str}.txt", "w") as arquivo_saida:
-        total_geral = 0
-        arquivo_saida.write("-------------------------------------------------\n")
-        arquivo_saida.write("-----> Relatório de Atividades por Técnico <-----\n")
-        arquivo_saida.write("-------------------------------------------------\n")
-        for tecnico, atividades in tecnicos_atividades.items():
-            arquivo_saida.write(f"\n********************************\nTécnico: {tecnico}\n********************************\n")
-            total_atividades_tecnico = sum(atividades.values())
-            total_geral += total_atividades_tecnico  # Adiciona o total do técnico ao total geral
-            arquivo_saida.write(f"\n++++++++++++++++++++++++\nTotal de atividades: {total_atividades_tecnico}\n++++++++++++++++++++++++\n")
-            for atividade, contagem in atividades.items():
-                arquivo_saida.write(f"- Atividade: {atividade} = {contagem}\n")
-            arquivo_saida.write("\n")  # Adicione uma linha em branco entre cada técnico
-        
-        arquivo_saida.write(f"********************************\nTotal geral de atividades: {total_geral}\n********************************\n")
-
-def processar_dados_planilha(caminho, data_init, data_end):
-
-    data_inicial = data_init
-    data_final = data_end
-
-    data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d')
-    data_final = datetime.strptime(data_final, '%Y-%m-%d')
-
-    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda"]
-
-    df = ler_planilha(caminho, "Ordens de Serviço")
-    tecnico, atividade, data = extrair_colunas_interesse(df)
-    lista_tuplas = criar_lista_tuplas(tecnico, atividade, data)
+def gerar_dicionario_formatado(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_evitar):
+    global resultado_formatado
+    planilha_nome = "Ordens de Serviço"
+    df = ler_planilha(caminho_arquivo, planilha_nome)
+    tecnico, auxiliar, atividade = extrair_colunas_interesse(df)
+    list_tuplas = criar_lista_tuplas(tecnico, auxiliar, atividade)
     
-    # Aqui, passamos diretamente os objetos datetime para a função filtrar_atividades_por_data
-    tupla_result = filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas)
+    vinculo_tecnico_auxiliares, contagem_por_auxiliar = contar_atividades_por_auxiliar(list_tuplas, tecnicos_a_evitar, auxiliares_a_evitar)
 
-    indice = 0
-    for t in tupla_result:
-        print(f"{t}\n")
-        indice += 1
+    resultado_formatado = ""
+    for tecnico, auxiliares in vinculo_tecnico_auxiliares.items():
+        resultado_formatado += f"Técnico: {tecnico}\n"
+        for auxiliar in auxiliares:
+            resultado_formatado += f"  Auxiliar: {auxiliar}\n"
+            for atividade, quantidade in contagem_por_auxiliar.get((tecnico, auxiliar), {}).items():
+                resultado_formatado += f"    Serviço: {atividade}, Quantidade: {quantidade}\n"
+        resultado_formatado += "\n"
 
-    print(f"Total=> {indice}")
-    
-    contagem_atividades = contar_atividades_repetidas(tupla_result)
-    total = [0]  # Usando uma lista para contornar a limitação do escopo
-
-    tecnicos_atividades = processar_tecnicos_atividades(contagem_atividades, lista_tecnicos_a_evitar)
-
-    print(tecnicos_atividades)
-
-    # Salvar os dados no arquivo de texto
-    salvar_em_txt(tecnicos_atividades, data_inicial, data_final)
+    return resultado_formatado
 
 
-#caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-05-07-202826.xlsx"
-#processar_dados_planilha(caminho_arquivo, data_inicial, data_final)
+def obter_quantidade_total_servicos(resultado):
+    total_servicos_com_auxiliares = 0
+
+    for tecnico, auxiliar, _, _ in resultado:
+        if auxiliar is not None:
+            total_servicos_com_auxiliares += 1
+
+    return total_servicos_com_auxiliares
+
+
+def get_resultado_formatado(caminho):
+    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda", "nan"]
+    lista_auxiliares_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "leandro.lacerda"]
+
+    caminho_arquivo = caminho
+
+    data_inicial = datetime.strptime('2024-04-02', '%Y-%m-%d').date()  # Convertendo para datetime.date
+    data_final = datetime.strptime('2024-05-02', '%Y-%m-%d').date()  # Convertendo para datetime.date
+
+    resultado = gerar_dicionario(caminho_arquivo, data_inicial, data_final)
+    resultado_formatado = formatar_resultado(resultado, lista_tecnicos_a_evitar, lista_auxiliares_a_evitar)
+    quantidade_total_servicos = obter_quantidade_total_servicos(resultado)
+
+
+    print(resultado_formatado)
+
+caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-05-07-220620.xlsx"
+get_resultado_formatado(caminho_arquivo)

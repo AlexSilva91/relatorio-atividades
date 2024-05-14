@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import QApplication, QDateEdit, QVBoxLayout, QMainWindow, QFileDialog, QPushButton, QLabel, QWidget
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QIcon
-#from acessar_planilha import processar_dados_planilha
+from acessar_planilha import processar_dados_planilha
 from buscar_reincidencia import buscar_reinicidencia
-from acess import processar_dados_planilha
+#from acess import processar_dados_planilha
 
 caminho_arquivo = None
 data_inicial = None
