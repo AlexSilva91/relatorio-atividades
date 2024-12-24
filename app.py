@@ -7,6 +7,7 @@ import os
 from acessar_planilha import processar_dados_planilha
 from buscar_reincidencia import buscar_reinicidencia
 from bot_module import get_status, start_bot, parar_bot
+from utils.validation import validation_legth_sheet
 
 # Configuração do log
 logging.basicConfig(filename='.app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -217,25 +218,28 @@ class MainWindow(QMainWindow):
         # Método para abrir o arquivo
         filename, _ = QFileDialog.getOpenFileName(self, "Selecionar Arquivo")
         if filename:
-            if filename.endswith('.xlsx'):
+            if filename.endswith('.xlsx') and validation_legth_sheet(filename):
                 self.caminho_arquivo = filename
                 file_name = os.path.basename(filename)
                 self.label_file.setText(f"{file_name}")
                 self.label_file.setAlignment(Qt.AlignCenter)
                 logging.info(f"Arquivo selecionado: {file_name}")
             else:
-                self.label_file.setText("Por favor, selecione um arquivo .xlsx.")
+                self.label_file.setText("Arquivo inválido!")
+                self.label_file.setStyleSheet("color: red;")
                 self.caminho_arquivo = None
-                logging.warning("Arquivo selecionado não é um .xlsx.")
+                logging.warning("Arquivo selecionado não é um .xlsx. ou o número de colunas é superior a 22")
 
     def start_processar_dados(self):
         # Inicia o processamento de dados
         if not self.caminho_arquivo:
             self.label_file.setText("Por favor, selecione um arquivo.")
+            self.label_file.setStyleSheet("color: red;")
             logging.error("Nenhum arquivo foi selecionado.")
             return
 
         self.label_file.setText("Gerando...")
+        self.label_file.setStyleSheet("color: orange;")
         self.progress_bar.setValue(0)  # Resetando a barra de progresso
         logging.info("Iniciando o processamento de dados...")
 
@@ -248,10 +252,12 @@ class MainWindow(QMainWindow):
         # Inicia a busca por reincidência
         if not self.caminho_arquivo:
             self.label_file.setText("Por favor, selecione um arquivo.")
+            self.label_file.setStyleSheet("color: red;")
             logging.error("Nenhum arquivo foi selecionado.")
             return
 
         self.label_file.setText("Buscando reincidências...")
+        self.label_file.setStyleSheet("color: orange;")
         self.progress_bar.setValue(0)  # Resetando a barra de progresso
         logging.info("Iniciando a busca por reincidências...")
 
@@ -267,6 +273,7 @@ class MainWindow(QMainWindow):
     def on_process_finished(self):
         # Avisa que o processo foi concluído
         self.label_file.setText("Processamento Concluído!")
+        self.label_file.setStyleSheet("color: green;")
         self.progress_bar.setValue(100)
         logging.info("Processamento concluído com sucesso.")
 
