@@ -1,11 +1,22 @@
 import pandas as pd
+import os
 from datetime import datetime
 from collections import Counter, OrderedDict
 from auxiliar_por_atividade import get_resultado_formatado
 import logging
 
-# Configuração do logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Criação de um logger centralizado
+logger = logging.getLogger(__name__)
+
+# Configuração do logging para salvar em arquivo e exibir no console
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.DEBUG,
+    handlers=[
+        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
+        logging.StreamHandler()  # Exibe logs no console também
+    ]
+)
 
 def ler_planilha(caminho_arquivo, planilha_nome):
     """

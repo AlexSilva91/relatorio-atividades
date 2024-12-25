@@ -4,6 +4,19 @@ import logging
 global PLANILHA_NOME
 PLANILHA_NOME = "Ordens de Serviço"
 
+# Criação de um logger centralizado
+logger = logging.getLogger(__name__)
+
+# Configuração do logging para salvar em arquivo e exibir no console
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.DEBUG,
+    handlers=[
+        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
+        logging.StreamHandler()  # Exibe logs no console também
+    ]
+)
+
 def contar_colunas(caminho_arquivo, planilha_nome):
     """
     Conta o número total de colunas em uma planilha Excel.
@@ -28,6 +41,4 @@ def validation_legth_sheet(caminho):
         return True
     else:
         return False
-
-
-#print(validation_legth_sheet("/home/alex/Downloads/ordemservico-2024-12-21-153345.xlsx"))
+    

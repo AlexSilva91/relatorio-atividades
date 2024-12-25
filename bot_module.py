@@ -37,7 +37,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO,
     handlers=[
-        logging.FileHandler(".api_logs.log"),  # Salva logs em 'api_logs.txt'
+        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.txt'
         logging.StreamHandler()  # Exibe logs no console também
     ]
 )

@@ -9,8 +9,18 @@ from buscar_reincidencia import buscar_reinicidencia
 from bot_module import get_status, start_bot, parar_bot
 from utils.validation import validation_legth_sheet
 
-# Configuração do log
-logging.basicConfig(filename='.app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# Criação de um logger centralizado
+logger = logging.getLogger(__name__)
+
+# Configuração do logging para salvar em arquivo e exibir no console
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.DEBUG,
+    handlers=[
+        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
+        logging.StreamHandler()  # Exibe logs no console também
+    ]
+)
 
 # Classe para executar tarefas em um thread separado
 class WorkerThread(QThread):
