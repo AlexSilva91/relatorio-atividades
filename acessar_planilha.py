@@ -1,32 +1,19 @@
 import pandas as pd
-<<<<<<< HEAD
-from datetime import datetime
-from collections import Counter, OrderedDict
-from auxiliar_por_atividade import get_resultado_formatado
-
-def ler_planilha(caminho_arquivo, planilha_nome):
-    df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
-    df = df.drop(df.index[:7])
-    return df
-
-def extrair_colunas_interesse(df):
-=======
 import os
 from datetime import datetime
 from collections import Counter, OrderedDict
 from auxiliar_por_atividade import get_resultado_formatado
 import logging
+from utils.log import get_log_file_path
 
-# Criação de um logger centralizado
-logger = logging.getLogger(__name__)
+log_file = get_log_file_path()
 
-# Configuração do logging para salvar em arquivo e exibir no console
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.DEBUG,
     handlers=[
-        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
-        logging.StreamHandler()  # Exibe logs no console também
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
     ]
 )
 
@@ -60,18 +47,12 @@ def extrair_colunas_interesse(df):
         Series: Coluna de datas convertidas para formato de data.
     """
     logging.info("Extraindo colunas de interesse (Técnico, Atividade, Data)")
->>>>>>> master
     atividade = df.iloc[:, 8]
     data = pd.to_datetime(df.iloc[:, 14], errors='coerce').dt.date
     tecnico = df.iloc[:, 15]
     return tecnico, atividade, data
 
 def criar_lista_tuplas(tecnico, atividade, data):
-<<<<<<< HEAD
-    return list(zip(tecnico, atividade, data))
-
-def filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas):
-=======
     """
     Cria uma lista de tuplas contendo as informações dos técnicos, atividades e datas.
 
@@ -99,54 +80,11 @@ def filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas):
         list: Lista de tuplas filtradas por data.
     """
     logging.info(f"Filtrando atividades entre {data_inicial} e {data_final}")
->>>>>>> master
     data_inicial_com_horario = datetime.combine(data_inicial, datetime.min.time())
     data_final_com_horario = datetime.combine(data_final, datetime.max.time())
 
     atividades_filtradas = []
     for tupla in lista_tuplas:
-<<<<<<< HEAD
-        # Convertendo tupla[2] para datetime.datetime
-        data_tupla = datetime.combine(tupla[2], datetime.min.time())
-
-        if data_inicial_com_horario <= data_tupla <= data_final_com_horario:
-            # Extrair nome do técnico e atividade
-            nome_tecnico, atividade, _ = tupla
-            atividades_filtradas.append((nome_tecnico, atividade))
-    return atividades_filtradas
-
-def contar_atividades_repetidas(lista):
-    return Counter(lista)
-
-def processar_tecnicos_atividades(contagem_atividades, tecnicos_a_evitar):
-    tecnicos_atividades = {}
-
-    for (tecnico, atividade), contagem in contagem_atividades.items():
-        if not isinstance(tecnico, str) or tecnico.strip() == "":
-            continue
-
-        if tecnico not in tecnicos_a_evitar:
-            if tecnico not in tecnicos_atividades:
-                tecnicos_atividades[tecnico] = {}
-
-            tecnicos_atividades[tecnico][atividade] = contagem
-
-    return OrderedDict(sorted(tecnicos_atividades.items()))
-
-def atualizar_tecnico_atividades(contagem_por_auxiliar, tecnico_atividades):
-    for auxiliar, atividades in contagem_por_auxiliar.items():
-        tecnico = auxiliar[-1]  # Obtém o último elemento (nome do técnico)
-        if tecnico in tecnico_atividades:
-            for atividade, quantidade in atividades.items():
-                if atividade in tecnico_atividades[tecnico]:
-                    # Atualiza a quantidade da atividade existente
-                    tecnico_atividades[tecnico][atividade] += quantidade
-                else:
-                    # Adiciona uma nova atividade
-                    tecnico_atividades[tecnico][atividade] = quantidade
-        else:
-            # Adiciona um novo registro para o técnico
-=======
         data_tupla = datetime.combine(tupla[2], datetime.min.time())
         if data_inicial_com_horario <= data_tupla <= data_final_com_horario:
             nome_tecnico, atividade, _ = tupla
@@ -214,15 +152,10 @@ def atualizar_tecnico_atividades(contagem_por_auxiliar, tecnico_atividades):
                 else:
                     tecnico_atividades[tecnico][atividade] = quantidade
         else:
->>>>>>> master
             tecnico_atividades[tecnico] = atividades
 
     return tecnico_atividades
 
-<<<<<<< HEAD
-
-def salvar_em_txt(tecnicos_atividades, data_inicial, data_final, resultado_formatado, total_servicos):
-=======
 def salvar_em_txt(tecnicos_atividades, data_inicial, data_final, resultado_formatado, total_servicos):
     """
     Salva o relatório de atividades por técnico em um arquivo de texto.
@@ -235,7 +168,6 @@ def salvar_em_txt(tecnicos_atividades, data_inicial, data_final, resultado_forma
         total_servicos (int): Total de serviços computados.
     """
     logging.info(f"Salvando relatório de atividades de {data_inicial} a {data_final} em arquivo TXT")
->>>>>>> master
     data_init_str = data_inicial.strftime('%Y-%m-%d')
     data_end_str = data_final.strftime('%Y-%m-%d')
 
@@ -247,41 +179,17 @@ def salvar_em_txt(tecnicos_atividades, data_inicial, data_final, resultado_forma
         for tecnico, atividades in tecnicos_atividades.items():
             arquivo_saida.write(f"\n********************************\nTécnico: {tecnico}\n********************************\n")
             total_atividades_tecnico = sum(atividades.values())
-<<<<<<< HEAD
-            total_geral += total_atividades_tecnico  # Adiciona o total do técnico ao total geral
-            arquivo_saida.write(f"\n++++++++++++++++++++++++\nTotal de atividades: {total_atividades_tecnico}\n++++++++++++++++++++++++\n")
-            for atividade, contagem in atividades.items():
-                arquivo_saida.write(f"- Atividade: {atividade} = {contagem}\n")
-            arquivo_saida.write("\n")  # Adicione uma linha em branco entre cada técnico
-        
-=======
             total_geral += total_atividades_tecnico
             arquivo_saida.write(f"\n++++++++++++++++++++++++\nTotal de atividades: {total_atividades_tecnico}\n++++++++++++++++++++++++\n")
             for atividade, contagem in atividades.items():
                 arquivo_saida.write(f"- Atividade: {atividade} = {contagem}\n")
             arquivo_saida.write("\n")
 
->>>>>>> master
         arquivo_saida.write(f"********************************\nTotal geral de atividades: {total_geral-total_servicos}\n********************************\n")
         arquivo_saida.write("--------------------------------------------\n")
         arquivo_saida.write("-----> Relatório de ajuda por Técnico <-----\n")
         arquivo_saida.write("--------------------------------------------\n")
         arquivo_saida.write(f"{resultado_formatado}\n")
-<<<<<<< HEAD
-
-def processar_dados_planilha(caminho, data_init, data_end):
-
-    data_inicial = data_init
-    data_final = data_end
-
-    data_inicial = datetime.strptime(data_inicial, '%Y-%m-%d')
-    data_final = datetime.strptime(data_final, '%Y-%m-%d')
-    #chama Acess
-    resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar = get_resultado_formatado(caminho, data_init, data_end)
-
-
-    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda", "jonatas.thiago"]
-=======
     logging.info("Relatório salvo com sucesso")
 
 def processar_dados_planilha(caminho, data_init, data_end):
@@ -300,16 +208,11 @@ def processar_dados_planilha(caminho, data_init, data_end):
     resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar = get_resultado_formatado(caminho, data_init, data_end)
 
     lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "jonatas.thiago"]
->>>>>>> master
 
     df = ler_planilha(caminho, "Ordens de Serviço")
     tecnico, atividade, data = extrair_colunas_interesse(df)
     lista_tuplas = criar_lista_tuplas(tecnico, atividade, data)
     
-<<<<<<< HEAD
-    # Aqui, passamos diretamente os objetos datetime para a função filtrar_atividades_por_data
-=======
->>>>>>> master
     tupla_result = filtrar_atividades_por_data(data_inicial, data_final, lista_tuplas)
     
     contagem_atividades = contar_atividades_repetidas(tupla_result)
@@ -318,16 +221,7 @@ def processar_dados_planilha(caminho, data_init, data_end):
 
     tecnico_atividades_atualizado = atualizar_tecnico_atividades(contagem_por_auxiliar, tecnicos_atividades)
 
-<<<<<<< HEAD
-    # Salvar os dados no arquivo de texto
-    salvar_em_txt(tecnico_atividades_atualizado, data_inicial, data_final, resultado_formatado, total_servicos)
-
-
-#caminho_arquivo = "/home/alex/Downloads/ordemservico-2024-05-07-202826.xlsx"
-#processar_dados_planilha(caminho_arquivo, data_inicial, data_final)
-=======
     salvar_em_txt(tecnico_atividades_atualizado, data_inicial, data_final, resultado_formatado, total_servicos)
 
     logging.info("Processamento concluído com sucesso")
 
->>>>>>> master

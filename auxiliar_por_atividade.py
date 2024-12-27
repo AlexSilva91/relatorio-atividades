@@ -1,30 +1,18 @@
 import pandas as pd
-<<<<<<< HEAD
-from collections import defaultdict, Counter
-from datetime import datetime
-
-def ler_planilha(caminho_arquivo, planilha_nome):
-    df = pd.read_excel(caminho_arquivo, sheet_name=planilha_nome)
-    df = df.drop(df.index[:7])
-    return df
-
-def extrair_colunas_interesse(df):
-=======
 import os
 from collections import defaultdict, Counter
 from datetime import datetime
 import logging
+from utils.log import get_log_file_path
 
-# Criação de um logger centralizado
-logger = logging.getLogger(__name__)
+log_file = get_log_file_path()
 
-# Configuração do logging para salvar em arquivo e exibir no console
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.DEBUG,
     handlers=[
-        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
-        logging.StreamHandler()  # Exibe logs no console também
+        logging.FileHandler(log_file),
+        logging.StreamHandler()
     ]
 )
 
@@ -59,22 +47,10 @@ def extrair_colunas_interesse(df):
         Series: Coluna de datas convertidas para formato de data.
     """
     logging.info("Extraindo colunas de interesse")
->>>>>>> master
     atividade = df.iloc[:, 8]
     tecnico = df.iloc[:, 15]
     auxiliar = df.iloc[:, 16]
     data = pd.to_datetime(df.iloc[:, 14], errors='coerce').dt.date
-<<<<<<< HEAD
-    return tecnico, auxiliar, atividade, data
-
-def criar_lista_tuplas(tecnico, auxiliar, atividade, data):
-    return list(zip(tecnico, auxiliar, atividade, data))
-
-def filtrar_por_datas(lista_tuplas, data_inicial, data_final):
-    return [(tecnico, auxiliar, atividade, data) for tecnico, auxiliar, atividade, data in lista_tuplas if data_inicial <= data <= data_final]
-
-def contar_atividades_por_auxiliar(lista_tuplas, tecnicos_a_evitar, auxiliares_a_evitar):
-=======
     logging.debug(f"Colunas extraídas: {len(tecnico)} técnicos, {len(auxiliar)} auxiliares, {len(atividade)} atividades, {len(data)} datas")
     return tecnico, auxiliar, atividade, data
 
@@ -125,7 +101,6 @@ def contar_atividades_por_auxiliar(lista_tuplas, tecnicos_a_evitar, auxiliares_a
         dict: Dicionário com chaves (tecnico, auxiliar) e contadores de atividades como valor.
     """
     logging.info("Contando atividades por auxiliar, excluindo técnicos e auxiliares a evitar")
->>>>>>> master
     vinculo_tecnico_auxiliares = defaultdict(set)
     contagem_por_auxiliar = defaultdict(Counter)
 
@@ -140,11 +115,6 @@ def contar_atividades_por_auxiliar(lista_tuplas, tecnicos_a_evitar, auxiliares_a
             vinculo_tecnico_auxiliares[tecnico].add(auxiliar)
             contagem_por_auxiliar[(tecnico, auxiliar)][atividade] += 1
 
-<<<<<<< HEAD
-    return dict(vinculo_tecnico_auxiliares), dict(contagem_por_auxiliar)
-
-def gerar_dicionario_formatado(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_evitar, data_inicial=None, data_final=None):
-=======
     logging.debug(f"Vínculos de técnicos e auxiliares: {len(vinculo_tecnico_auxiliares)} técnicos")
     logging.debug(f"Contagem de atividades por auxiliar: {len(contagem_por_auxiliar)} registros")
     return dict(vinculo_tecnico_auxiliares), dict(contagem_por_auxiliar)
@@ -167,7 +137,6 @@ def gerar_dicionario_formatado(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_
         dict: Dicionário com contagens de atividades por técnico e auxiliar.
     """
     logging.info(f"Iniciando a geração do relatório para o arquivo {caminho_arquivo}")
->>>>>>> master
     planilha_nome = "Ordens de Serviço"
     df = ler_planilha(caminho_arquivo, planilha_nome)
     tecnico, auxiliar, atividade, data = extrair_colunas_interesse(df)
@@ -192,17 +161,6 @@ def gerar_dicionario_formatado(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_
 
     resultado_formatado += f"Total de serviços: {total_servicos}\n"  # Adiciona o total de serviços ao final do relatório
 
-<<<<<<< HEAD
-    return resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar
-
-
-def get_resultado_formatado(caminho, data_inicial=None, data_final=None):
-    # Lista de técnicos a evitar
-    lista_tecnicos_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda", "jonatas.thiago"]
-
-    # Lista de auxiliares a evitar
-    lista_auxiliares_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "leandro.lacerda", "jonatas.thiago"]
-=======
     logging.debug(f"Relatório gerado com {total_servicos} serviços no total")
     return resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar
 
@@ -223,20 +181,12 @@ def get_resultado_formatado(caminho, data_inicial=None, data_final=None):
 
     # Lista de auxiliares a evitar
     lista_auxiliares_a_evitar = ["tiago.peres", "eguinailson.nunes", "evandro.zuza", "geimerson.alves", "NOC", "jonatas.thiago"]
->>>>>>> master
 
     data_init = datetime.strptime(data_inicial, '%Y-%m-%d').date() if data_inicial else None
     data_end = datetime.strptime(data_final, '%Y-%m-%d').date() if data_final else None
 
     # Uso da função para obter a string formatada
-<<<<<<< HEAD
-    resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar = gerar_dicionario_formatado(caminho, lista_tecnicos_a_evitar, lista_auxiliares_a_evitar, data_init, data_end)
-    
-    return resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar
-    
-=======
     logging.info("Obtendo resultado formatado com base nas datas e listas de exclusão")
     resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar = gerar_dicionario_formatado(caminho, lista_tecnicos_a_evitar, lista_auxiliares_a_evitar, data_init, data_end)
     
     return resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar
->>>>>>> master
