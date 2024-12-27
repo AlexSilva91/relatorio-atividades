@@ -11,10 +11,7 @@ def get_log_file_path():
     os.makedirs(log_dir, exist_ok=True)
     return os.path.join(log_dir, 'app.log')
 
-"""
-    Caminho no windows
-    C:\Users\Técnico 1\AppData\Roaming\.bot_oculto
+    #C:\Users\Técnico 1\AppData\Roaming\.bot_oculto
 
-    C:\Users\Técnico 1\AppData\Local\meta_tecnicos\app.log
+    #C:\Users\Técnico 1\AppData\Local\meta_tecnicos\app.log
 
-"""
