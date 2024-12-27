@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 from datetime import datetime
 from collections import Counter, OrderedDict
 from auxiliar_por_atividade import get_resultado_formatado
