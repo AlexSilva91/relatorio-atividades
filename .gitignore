@@ -14,9 +14,3 @@ __pycache__/
 venv/
 
 pyvenv.cfg
-
-.logs.log
-
-.chave.key
-
-.status_encrypted.txt
