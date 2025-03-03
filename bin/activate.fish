@@ -33,7 +33,11 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
+<<<<<<< HEAD
 set -gx VIRTUAL_ENV '/home/alex/projetos_python/meta_tecnicos['
+=======
+set -gx VIRTUAL_ENV /home/alex/projetos_python/relatorio_atividades
+>>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH
@@ -56,7 +60,11 @@ if test -z "$VIRTUAL_ENV_DISABLE_PROMPT"
         set -l old_status $status
 
         # Output the venv prompt; color taken from the blue of the Python logo.
+<<<<<<< HEAD
         printf "%s%s%s" (set_color 4B8BBE) '(meta_tecnicos[) ' (set_color normal)
+=======
+        printf "%s%s%s" (set_color 4B8BBE) '(relatorio_atividades) ' (set_color normal)
+>>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 
         # Restore the return status of the previous command.
         echo "exit $old_status" | .
@@ -65,5 +73,9 @@ if test -z "$VIRTUAL_ENV_DISABLE_PROMPT"
     end
 
     set -gx _OLD_FISH_PROMPT_OVERRIDE "$VIRTUAL_ENV"
+<<<<<<< HEAD
     set -gx VIRTUAL_ENV_PROMPT '(meta_tecnicos[) '
+=======
+    set -gx VIRTUAL_ENV_PROMPT '(relatorio_atividades) '
+>>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 end

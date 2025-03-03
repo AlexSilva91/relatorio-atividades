@@ -1,20 +1,36 @@
 import pandas as pd
 import logging
 from datetime import datetime, timedelta
+<<<<<<< HEAD
 from utils.log import get_log_file_path
 
 log_file = get_log_file_path()
 
+=======
+
+# Criação de um logger centralizado
+logger = logging.getLogger(__name__)
+
+# Configuração do logging para salvar em arquivo e exibir no console
+>>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.DEBUG,
     handlers=[
+<<<<<<< HEAD
         logging.FileHandler(log_file),
         logging.StreamHandler()
     ]
 )
 
 
+=======
+        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
+        logging.StreamHandler()  # Exibe logs no console também
+    ]
+)
+
+>>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 def ler_planilha(caminho_arquivo, planilha_nome):
     try:
         logging.info(f"Iniciando leitura do arquivo: {caminho_arquivo}, planilha: {planilha_nome}")
@@ -34,8 +50,13 @@ def extrair_colunas_interesse(df):
         logging.info("Iniciando extração das colunas de interesse.")
         contrato = df.iloc[:, 2]
         atividade = df.iloc[:, 8].str.lower()
+<<<<<<< HEAD
         data = pd.to_datetime(df.iloc[:, 15], errors='coerce')
         tecnico = df.iloc[:, 16]
+=======
+        data = pd.to_datetime(df.iloc[:, 14], errors='coerce')
+        tecnico = df.iloc[:, 15]
+>>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
         logging.info("Colunas extraídas com sucesso.")
         return tecnico, contrato, atividade, data
     except Exception as e:
@@ -189,4 +210,8 @@ def buscar_reinicidencia(caminho_arq, data_inicial, data_final):
             salvar_contratos_em_txt(contratos_filtrados_por_data, "contratos_reincidentes.txt")
         logging.info("Processo de busca de reincidências finalizado com sucesso.")
     except Exception as e:
+<<<<<<< HEAD
         logging.error(f"Erro no processo geral: {e}")
+=======
+        logging.error(f"Erro no processo geral: {e}")
+>>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
