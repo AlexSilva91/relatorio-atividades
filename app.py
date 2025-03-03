@@ -231,6 +231,7 @@ class MainWindow(QMainWindow):
                 self.caminho_arquivo = filename
                 file_name = os.path.basename(filename)
                 self.label_file.setText(f"{file_name}")
+                self.label_file.setStyleSheet("color: green;")
                 self.label_file.setAlignment(Qt.AlignCenter)
                 logging.info(f"Arquivo selecionado: {file_name}")
             else:
