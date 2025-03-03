@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# relatorio-atividades
-=======
 # Sistema de Análise e Gestão de Contratos e Atividades
 
 Este projeto oferece uma solução completa para a análise, filtragem e consolidação de dados relacionados a contratos e atividades em planilhas, permitindo a identificação de reincidências e a geração de relatórios detalhados. É ideal para empresas e equipes que precisam de uma maneira eficiente e automatizada para monitorar e gerenciar ordens de serviço, atividades de suporte e execução de tarefas, garantindo um controle mais rigoroso e assertivo das operações.
@@ -45,4 +42,3 @@ Este projeto oferece uma solução completa para a análise, filtragem e consoli
   <img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg" width="50" />
   <img src="https://upload.wikimedia.org/wikipedia/commons/e/ed/Pandas_logo.svg" width="150" />
 </p>
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c

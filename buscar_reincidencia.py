@@ -1,36 +1,19 @@
 import pandas as pd
 import logging
 from datetime import datetime, timedelta
-<<<<<<< HEAD
 from utils.log import get_log_file_path
 
 log_file = get_log_file_path()
 
-=======
-
-# Criação de um logger centralizado
-logger = logging.getLogger(__name__)
-
-# Configuração do logging para salvar em arquivo e exibir no console
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.DEBUG,
     handlers=[
-<<<<<<< HEAD
         logging.FileHandler(log_file),
         logging.StreamHandler()
     ]
 )
 
-
-=======
-        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
-        logging.StreamHandler()  # Exibe logs no console também
-    ]
-)
-
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 def ler_planilha(caminho_arquivo, planilha_nome):
     try:
         logging.info(f"Iniciando leitura do arquivo: {caminho_arquivo}, planilha: {planilha_nome}")
@@ -50,13 +33,8 @@ def extrair_colunas_interesse(df):
         logging.info("Iniciando extração das colunas de interesse.")
         contrato = df.iloc[:, 2]
         atividade = df.iloc[:, 8].str.lower()
-<<<<<<< HEAD
         data = pd.to_datetime(df.iloc[:, 15], errors='coerce')
         tecnico = df.iloc[:, 16]
-=======
-        data = pd.to_datetime(df.iloc[:, 14], errors='coerce')
-        tecnico = df.iloc[:, 15]
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
         logging.info("Colunas extraídas com sucesso.")
         return tecnico, contrato, atividade, data
     except Exception as e:
@@ -174,16 +152,25 @@ def salvar_contratos_em_txt(contratos_salvos, nome_arquivo):
     try:
         logging.info(f"Iniciando salvamento dos contratos em {nome_arquivo}.")
         total_contratos_impressos = 0
+        
         with open(nome_arquivo, 'w') as arquivo:
-            for contrato, info in contratos_salvos.items():
+            # Ordena os contratos do menor para o maior (ordem crescente)
+            for contrato in sorted(contratos_salvos.keys(), key=lambda x: int(x)):
+                info = contratos_salvos[contrato]
                 if len(info['atividades']) > 1 or any(atividade['atividade'].lower() == 'corretiva' for atividade in info['atividades']):
                     arquivo.write(f"Contrato: {contrato}\n")
                     arquivo.write("Atividades:\n")
-                    for atividade in info['atividades']:
+                    
+                    # Ordena as atividades por data (opcional)
+                    atividades_ordenadas = sorted(info['atividades'], key=lambda x: x['data'])
+                    
+                    for atividade in atividades_ordenadas:
                         arquivo.write(f"Atividade: {atividade['atividade']}, Data: {atividade['data']}, Técnico: {atividade['tecnico']}\n")
                     arquivo.write("\n")
                     total_contratos_impressos += 1
+            
             arquivo.write(f"---------------------------------------\nTotal de contratos impressos: {total_contratos_impressos}\n---------------------------------------")
+        
         logging.info(f"Contratos salvos com sucesso no arquivo {nome_arquivo}.")
     except Exception as e:
         logging.error(f"Erro ao salvar as informações dos contratos no arquivo: {e}")
@@ -210,8 +197,4 @@ def buscar_reinicidencia(caminho_arq, data_inicial, data_final):
             salvar_contratos_em_txt(contratos_filtrados_por_data, "contratos_reincidentes.txt")
         logging.info("Processo de busca de reincidências finalizado com sucesso.")
     except Exception as e:
-<<<<<<< HEAD
         logging.error(f"Erro no processo geral: {e}")
-=======
-        logging.error(f"Erro no processo geral: {e}")
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c

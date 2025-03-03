@@ -1,5 +1,4 @@
 import pandas as pd
-<<<<<<< HEAD
 from collections import defaultdict, Counter
 from datetime import datetime
 import logging
@@ -7,28 +6,12 @@ from utils.log import get_log_file_path
 
 log_file = get_log_file_path()
 
-=======
-import os
-from collections import defaultdict, Counter
-from datetime import datetime
-import logging
-
-# Criação de um logger centralizado
-logger = logging.getLogger(__name__)
-
-# Configuração do logging para salvar em arquivo e exibir no console
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.DEBUG,
     handlers=[
-<<<<<<< HEAD
         logging.FileHandler(log_file),
         logging.StreamHandler()
-=======
-        logging.FileHandler(".logs.log"),  # Salva logs em 'api_logs.log'
-        logging.StreamHandler()  # Exibe logs no console também
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
     ]
 )
 
@@ -64,15 +47,9 @@ def extrair_colunas_interesse(df):
     """
     logging.info("Extraindo colunas de interesse")
     atividade = df.iloc[:, 8]
-<<<<<<< HEAD
     tecnico = df.iloc[:, 16]
     auxiliar = df.iloc[:, 17]
     data = pd.to_datetime(df.iloc[:, 15], errors='coerce').dt.date
-=======
-    tecnico = df.iloc[:, 15]
-    auxiliar = df.iloc[:, 16]
-    data = pd.to_datetime(df.iloc[:, 14], errors='coerce').dt.date
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
     logging.debug(f"Colunas extraídas: {len(tecnico)} técnicos, {len(auxiliar)} auxiliares, {len(atividade)} atividades, {len(data)} datas")
     return tecnico, auxiliar, atividade, data
 
@@ -172,7 +149,6 @@ def gerar_dicionario_formatado(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_
     total_servicos = 0  # Inicializa o total de serviços
 
     resultado_formatado = ""
-<<<<<<< HEAD
     
     # Ordena os técnicos em ordem alfabética
     for tecnico in sorted(vinculo_tecnico_auxiliares.keys()):
@@ -187,13 +163,6 @@ def gerar_dicionario_formatado(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_
             # Ordena as atividades em ordem alfabética
             for atividade in sorted(atividades.keys()):
                 quantidade = atividades[atividade]
-=======
-    for tecnico, auxiliares in vinculo_tecnico_auxiliares.items():
-        resultado_formatado += f"Técnico: {tecnico}\n"
-        for auxiliar in auxiliares:
-            resultado_formatado += f"  Auxiliar: {auxiliar}\n"
-            for atividade, quantidade in contagem_por_auxiliar.get((tecnico, auxiliar), {}).items():
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
                 resultado_formatado += f"    Serviço: {atividade}, Quantidade: {quantidade}\n"
                 total_servicos += quantidade  # Adiciona a quantidade ao total
         resultado_formatado += "\n"
@@ -202,10 +171,6 @@ def gerar_dicionario_formatado(caminho_arquivo, tecnicos_a_evitar, auxiliares_a_
 
     logging.debug(f"Relatório gerado com {total_servicos} serviços no total")
     return resultado_formatado, total_servicos, vinculo_tecnico_auxiliares, contagem_por_auxiliar
-<<<<<<< HEAD
-=======
-
->>>>>>> c2f76c2a2615472f5536ca8879bbf1e85308fe2c
 def get_resultado_formatado(caminho, data_inicial=None, data_final=None):
     """
     Obtém o relatório formatado, filtrando por datas e removendo técnicos e auxiliares a evitar.
