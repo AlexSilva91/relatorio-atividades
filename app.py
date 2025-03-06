@@ -1,6 +1,6 @@
 import threading
 import logging
-from PyQt5.QtWidgets import QApplication, QDateEdit, QVBoxLayout, QMainWindow, QFileDialog, QPushButton, QLabel, QWidget, QHBoxLayout, QProgressBar
+from PyQt5.QtWidgets import QApplication, QDateEdit, QVBoxLayout, QMainWindow, QFileDialog, QPushButton, QLabel, QWidget, QHBoxLayout, QDesktopWidget
 from PyQt5.QtCore import Qt, QDate, QThread, pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon
 import os
@@ -9,6 +9,7 @@ from buscar_reincidencia import buscar_reinicidencia
 from bot_module import get_status, start_bot, parar_bot
 from utils.validation import validation_legth_sheet
 from utils.log import get_log_file_path
+import qt_material  
 
 log_file = get_log_file_path()
 
@@ -48,10 +49,12 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         # Configurações da janela principal
-        self.setWindowTitle("Selecionar Arquivo")
-        self.setGeometry(100, 100, 400, 250)  # Aumentei a altura da janela para acomodar a barra de progresso
+        self.setWindowTitle("OuriNet - Meta Técnicos")
+        self.setFixedSize(400, 350)
         self.setWindowIcon(QIcon('report.ico'))
 
+        self.center()
+        
         # Configuração do widget central
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -68,22 +71,26 @@ class MainWindow(QMainWindow):
 
         # Botão para abrir arquivo
         self.button_open = QPushButton("Abrir Arquivo")
-        self.button_open.setFixedSize(200, 30)
-        self.button_open.setStyleSheet("background-color: #007bff; color: white; border: none;")
+        self.button_open.setFixedSize(200, 40)
+        self.button_open.setStyleSheet("background-color: #007bff;color: white; border: 2px solid white; border-radius: 10px;")
         self.button_open.clicked.connect(self.open_file)
         self.layout.addWidget(self.button_open)
 
         # Widgets para seleção de datas
         self.title_label1 = QLabel("Data Inicial:")
+        self.title_label1.setStyleSheet("color: #4F4F4F; font-size: 15px; font-weight: bold;")
         self.date_edit1 = QDateEdit()
+        self.date_edit1.setStyleSheet("color: #4F4F4F; border: 2px solid white; border-radius: 10px;")
         self.date_edit1.setFixedSize(200, 30)
         self.date_edit1.setCalendarPopup(True)
         self.date_edit1.setDate(QDate.currentDate())
         self.date_edit1.dateChanged.connect(self.check_date1)
 
         self.title_label2 = QLabel("Data Final:")
+        self.title_label2.setStyleSheet("color: #4F4F4F; font-size: 15px; font-weight: bold;")
         self.date_edit2 = QDateEdit()
         self.date_edit2.setFixedSize(200, 30)
+        self.date_edit2.setStyleSheet("color:  #4F4F4F; border: 2px solid white; border-radius: 10px;")
         self.date_edit2.setCalendarPopup(True)
         self.date_edit2.setDate(QDate.currentDate())
         self.date_edit2.dateChanged.connect(self.check_date2)
@@ -96,28 +103,20 @@ class MainWindow(QMainWindow):
 
         # Botões para gerar relatórios
         self.button_new_function = QPushButton("Gerar relatório")
-        self.button_new_function.setFixedSize(200, 30)
-        self.button_new_function.setStyleSheet("background-color: #28a745; color: white; border: none;")
+        self.button_new_function.setFixedSize(200, 40)
+        self.button_new_function.setStyleSheet("background-color: #28a745; color: white; border: 2px solid white; border-radius: 10px;")
         self.button_new_function.clicked.connect(self.start_processar_dados)
         self.layout.addWidget(self.button_new_function)
 
-        self.button_new_function2 = QPushButton("Gerar relatório de reincidência")
-        self.button_new_function2.setFixedSize(200, 30)
-        self.button_new_function2.setStyleSheet("background-color: #dc3545; color: white; border: none;")
+        self.button_new_function2 = QPushButton("Relatório de\n reincidência")
+        self.button_new_function2.setFixedSize(200, 40)
+        self.button_new_function2.setStyleSheet("background-color: #dc3545; color: white; border: 2px solid white; border-radius: 10px;")
         self.button_new_function2.clicked.connect(self.start_buscar_reincidencia)
         self.layout.addWidget(self.button_new_function2)
 
         # Label para exibir informações sobre o arquivo selecionado
         self.label_file = QLabel()
         self.layout.addWidget(self.label_file)
-
-        # Barra de progresso
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setFixedSize(200, 15)
-        self.progress_bar.setValue(0)  # Inicializa com 0%
-        self.progress_bar.setStyleSheet("QProgressBar::chunk { background-color: #28a745; }")  # Cor verde
-        self.progress_bar.setAlignment(Qt.AlignCenter)  # Alinha o texto de porcentagem no centro
-        self.layout.addWidget(self.progress_bar)
 
         # Timer para atualizar o status em tempo real
         self.status_timer = QTimer(self)
@@ -137,7 +136,21 @@ class MainWindow(QMainWindow):
 
         # Atualiza o status assim que a interface é carregada
         self.check_status()
-
+        
+    def center(self):
+        # Obter o tamanho da tela
+        screen = QDesktopWidget().screenGeometry()
+        # Obter o tamanho da janela
+        window_size = self.geometry()
+        
+        # Calcular a posição para centralizar a janela
+        x = (screen.width() - window_size.width()) // 2
+        y = (screen.height() - window_size.height()) // 2
+        
+        # Mover a janela para a posição calculada
+        self.move(x, y)
+        
+        
     def closeEvent(self, event):
         """Quando a janela for fechada, o bot será interrompido também."""
         parar_bot()  # Função para parar o bot
@@ -230,7 +243,7 @@ class MainWindow(QMainWindow):
             if filename.endswith('.xlsx') and validation_legth_sheet(filename):
                 self.caminho_arquivo = filename
                 file_name = os.path.basename(filename)
-                self.label_file.setText(f"{file_name}")
+                self.label_file.setText(f"{file_name[:23]}...")
                 self.label_file.setStyleSheet("color: green;")
                 self.label_file.setAlignment(Qt.AlignCenter)
                 logging.info(f"Arquivo selecionado: {file_name}")
@@ -247,14 +260,12 @@ class MainWindow(QMainWindow):
             self.label_file.setStyleSheet("color: red;")
             logging.error("Nenhum arquivo foi selecionado.")
             return
-
+        
         self.label_file.setText("Gerando...")
         self.label_file.setStyleSheet("color: orange;")
-        self.progress_bar.setValue(0)  # Resetando a barra de progresso
         logging.info("Iniciando o processamento de dados...")
 
         self.thread = WorkerThread(processar_dados_planilha, self.caminho_arquivo, self.data_inicial, self.data_final)
-        self.thread.progress.connect(self.update_progress_bar)
         self.thread.finished.connect(self.on_process_finished)
         self.thread.start()
 
@@ -268,27 +279,25 @@ class MainWindow(QMainWindow):
 
         self.label_file.setText("Buscando reincidências...")
         self.label_file.setStyleSheet("color: orange;")
-        self.progress_bar.setValue(0)  # Resetando a barra de progresso
         logging.info("Iniciando a busca por reincidências...")
 
         self.thread2 = WorkerThread(buscar_reinicidencia, self.caminho_arquivo, self.data_inicial, self.data_final)
-        self.thread2.progress.connect(self.update_progress_bar)
         self.thread2.finished.connect(self.on_process_finished)
         self.thread2.start()
 
-    def update_progress_bar(self, value):
-        # Atualiza a barra de progresso com o valor recebido
-        self.progress_bar.setValue(value)
 
     def on_process_finished(self):
         # Avisa que o processo foi concluído
         self.label_file.setText("Processamento Concluído!")
         self.label_file.setStyleSheet("color: green;")
-        self.progress_bar.setValue(100)
         logging.info("Processamento concluído com sucesso.")
 
 if __name__ == '__main__':
     app = QApplication([])
+    
+    # Aplicando o tema
+    qt_material.apply_stylesheet(app, theme='light_blue.xml')
+    
     window = MainWindow()
     window.show()
     app.exec_()
