@@ -4,9 +4,9 @@ from PyQt5.QtWidgets import QApplication, QDateEdit, QVBoxLayout, QMainWindow, Q
 from PyQt5.QtCore import Qt, QDate, QThread, pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon
 import os
-from acessar_planilha import processar_dados_planilha
-from buscar_reincidencia import buscar_reinicidencia
-from bot_module import get_status, start_bot, parar_bot
+from process.acessar_planilha import processar_dados_planilha
+from process.buscar_reincidencia import buscar_reinicidencia
+from bot_module.bot_module import get_status, start_bot, parar_bot
 from utils.validation import validation_legth_sheet
 from utils.log import get_log_file_path
 import qt_material  
