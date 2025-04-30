@@ -1,3 +1,10 @@
+👨‍💻 **Autor**  
+**Alex da Silva Alves**  
+Analista de Redes | Desenvolvedor Python e Java  
+
+🔗 [LinkedIn](https://www.linkedin.com/in/alex-da-silva-alves-72b915116)  
+🐙 [GitHub - haras-cavalcanti](https://github.com/AlexSilva91/haras-cavalcanti)
+
 # Sistema de Análise e Gestão de Contratos e Atividades
 
 Este projeto oferece uma solução completa para a análise, filtragem e consolidação de dados relacionados a contratos e atividades em planilhas, permitindo a identificação de reincidências e a geração de relatórios detalhados. É ideal para empresas e equipes que precisam de uma maneira eficiente e automatizada para monitorar e gerenciar ordens de serviço, atividades de suporte e execução de tarefas, garantindo um controle mais rigoroso e assertivo das operações.
